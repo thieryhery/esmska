@@ -4,7 +4,7 @@ function getName() {
 }
 
 function getVersion() {
-    return "2010-07-24"
+    return "2011-05-14"
 }
 
 function getMaintainer() {
@@ -62,6 +62,11 @@ function getSupportedLanguages() {
 }
 
 function send() {
+
+    // this gateway is no longer maintained
+    EXEC.setErrorMessage(EXEC.ERROR_FIX_IN_PROGRESS, ["http://code.google.com/p/esmska/issues/detail?id=371"])
+    return false
+
     var re, match, content, postData
 
     // change variables to correct form
