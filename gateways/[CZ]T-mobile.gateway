@@ -4,7 +4,7 @@ function getName() {
 }
 
 function getVersion() {
-    return "2011-05-13"
+    return "2011-05-17"
 }
 
 function getMaintainer() {
@@ -66,9 +66,7 @@ function send() {
     var re, match, content, params, postData
 
     // logout just to be sure
-    //   logout disabled because of invalid SSL cerificate:
-    //   http://code.google.com/p/esmska/issues/detail?id=367
-    //EXEC.getURL("https://login.client.tmo.cz/um/cs/logout.jsp", []);
+    EXEC.getURL("https://login.client.tmo.cz/um/cs/logout.jsp", []);
 
     // sms sending page
     content = EXEC.getURL("http://sms.t-zones.cz/open.jsp", [])
