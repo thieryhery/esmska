@@ -1,12 +1,8 @@
-/*
- * ContactPanel.java
- *
- * Created on 3. říjen 2007, 18:48
- */
-
 package esmska.gui;
 
 import esmska.Context;
+import esmska.data.Gateways.Events;
+import esmska.data.event.ValuedEvent;
 import esmska.gui.dnd.ImportContactsTransferHandler;
 import esmska.data.Contact;
 import esmska.data.Contacts;
@@ -16,6 +12,7 @@ import esmska.data.Log;
 import esmska.data.Gateways;
 import esmska.data.Gateway;
 import esmska.data.event.ActionEventSupport;
+import esmska.data.event.ValuedListener;
 import esmska.utils.L10N;
 import esmska.utils.MiscUtils;
 import esmska.utils.RuntimeUtils;
@@ -128,6 +125,21 @@ public class ContactPanel extends javax.swing.JPanel {
             public void actionPerformed(ActionEvent e) {
                 ((ContactList)contactList).showNewContactHint(
                         contacts.size() <= 0);
+            }
+        });
+        
+        //listen for changes in gateways and repaint contacts if necessary
+        gateways.addValuedListener(new ValuedListener<Gateways.Events, Gateway>() {
+            @Override
+            public void eventOccured(ValuedEvent<Events, Gateway> e) {
+                switch(e.getEvent()) {
+                    case ADDED_GATEWAY:
+                    case ADDED_GATEWAYS:
+                    case CLEARED_GATEWAYS:
+                    case REMOVED_GATEWAY:
+                    case REMOVED_GATEWAYS:
+                        contactList.repaint();
+                }
             }
         });
     }
@@ -342,7 +354,7 @@ public class ContactPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_contactListKeyTyped
 
     private void contactListKeyPressed(KeyEvent evt) {//GEN-FIRST:event_contactListKeyPressed
-        //process backspace
+        //delete last letter in search string on backspace
         if (evt.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
             String searchString = searchContactAction.getSearchString();
             if (searchString.length() > 0) {
@@ -353,7 +365,7 @@ public class ContactPanel extends javax.swing.JPanel {
             return;
         }
         
-        //process escape
+        //cancel search string on escape
         if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
             searchContactAction.setSearchString("");
             searchContactAction.actionPerformed(null);
@@ -386,6 +398,12 @@ public class ContactPanel extends javax.swing.JPanel {
             evt.consume();
             searchContactAction.restartTimer();
             ((ContactList)contactList).repaintSearchField();
+        }
+
+        //delete contact on delete
+        if (evt.getKeyCode() == KeyEvent.VK_DELETE) {
+            removeContactButton.doClick(0);
+            return;
         }
     }//GEN-LAST:event_contactListKeyPressed
     
@@ -527,7 +545,7 @@ public class ContactPanel extends javax.swing.JPanel {
             
             //confirm
             JOptionPane pane = new JOptionPane(panel, JOptionPane.WARNING_MESSAGE, 
-                    JOptionPane.DEFAULT_OPTION, null, options, cancelOption);
+                    JOptionPane.DEFAULT_OPTION, null, options, deleteOption);
             JDialog dialog = pane.createDialog(Context.mainFrame, null);
             dialog.setResizable(true);
             RuntimeUtils.setDocumentModalDialog(dialog);
@@ -898,7 +916,8 @@ public class ContactPanel extends javax.swing.JPanel {
             JLabel label = ((JLabel)c);
             //add gateway logo
             Gateway gateway = gateways.get(contact.getGateway());
-            label.setIcon(gateway != null ? gateway.getIcon() : Icons.GATEWAY_BLANK);
+            label.setIcon(gateway != null && !gateway.isHidden() ? 
+                          gateway.getIcon() : Icons.GATEWAY_BLANK);
             //set tooltip
             String tooltip = "<html><table><tr><td><img src=\"" + contactIconURI +
                     "\"></td><td valign=top><b>" + MiscUtils.escapeHtml(contact.getName()) +

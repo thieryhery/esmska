@@ -1,8 +1,3 @@
-/*
- * Config.java
- *
- * Created on 19. červenec 2007, 20:56
- */
 package esmska.data;
 
 import esmska.gui.ThemeManager;
@@ -10,6 +5,7 @@ import esmska.utils.AlphanumComparator;
 import java.awt.Dimension;
 import java.beans.*;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang.ObjectUtils;
@@ -20,18 +16,6 @@ import org.apache.commons.lang.StringUtils;
  */
 public class Config extends Object implements Serializable {
 
-    /** How the update checks should be performed */
-    public static enum CheckUpdatePolicy {
-        /** never check for anything */
-        CHECK_NONE,
-        /** check only for program updates */
-        CHECK_PROGRAM,
-        /** check only for gateway updates */
-        CHECK_GATEWAYS,
-        /** check for program and gateway updates */
-        CHECK_ALL
-    }
-
     /** system-wide config */
     private static GlobalConfig globalConfig = GlobalConfig.getInstance();
     /** shared instance */
@@ -39,14 +23,10 @@ public class Config extends Object implements Serializable {
     /** mutex whether config already loaded from disk */
     private static boolean loaded = false;
     
-    private static final String LATEST_VERSION = "0.21";
+    private static final String LATEST_VERSION = "0.22";
     private static final Logger logger = Logger.getLogger(Config.class.getName());
 
     private String version = "";
-    private String senderName = "";
-    private String senderNumber = "";
-    private boolean useSenderID = false;
-    private boolean forgetLayout = false;
     private Dimension mainDimension;
     private Integer horizontalSplitPaneLocation;
     private Integer verticalSplitPaneLocation;
@@ -54,8 +34,8 @@ public class Config extends Object implements Serializable {
     private String lafJGoodiesTheme = "Experience Blue";
     private String lafSubstanceSkin = "Business Black Steel";
     private boolean removeAccents = true;
-    private CheckUpdatePolicy checkUpdatePolicy = globalConfig.checkUpdatePolicy;
-    private boolean checkForUnstableUpdates = false;
+    private boolean announceProgramUpdates = globalConfig.announceProgramUpdates;
+    private boolean announceUnstableUpdates = false;
     private boolean startCentered = false;
     private boolean toolbarVisible = true;
     private String countryPrefix = "";
@@ -69,12 +49,13 @@ public class Config extends Object implements Serializable {
     private boolean reducedHistory = false;
     private int reducedHistoryCount = 30;
     private boolean startMinimized = false;
-    private boolean demandDeliveryReport = false;
     private boolean showAdvancedSettings = false;
     private boolean debugMode = false;
     private boolean showAdvancedControls = false;
     private String[] favoriteGateways = new String[]{};
     private String[] hiddenGateways = new String[]{};
+    private String uuid = null;
+    private int uuidMonth = -1;
 
     /** Get shared instance 
      * @throws IllegalStateException until config is loaded from disk
@@ -156,12 +137,12 @@ public class Config extends Object implements Serializable {
             if (ObjectUtils.equals(evt.getOldValue(), evt.getNewValue())) {
                 return;
             }
-            //ensure privacy on sensitive values
+            //improve log display for arrays
             Object newValue = evt.getNewValue();
             Object oldValue = evt.getOldValue();
-            if (ObjectUtils.equals("senderNumber",evt.getPropertyName())) {
-                newValue = Contact.anonymizeNumber((String)newValue);
-                oldValue = Contact.anonymizeNumber((String)oldValue);
+            if (oldValue instanceof Object[]) {
+                oldValue = Arrays.toString((Object[])oldValue);
+                newValue = Arrays.toString((Object[])newValue);
             }
             //log change
             logger.log(Level.CONFIG, "Config changed - property: {0}, old: {1}, new: {2}",
@@ -181,22 +162,6 @@ public class Config extends Object implements Serializable {
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="Get Methods">
-    public String getSenderName() {
-        return senderName;
-    }
-
-    public String getSenderNumber() {
-        return senderNumber;
-    }
-
-    public boolean isUseSenderID() {
-        return this.useSenderID;
-    }
-
-    public boolean isForgetLayout() {
-        return this.forgetLayout;
-    }
-
     public Dimension getMainDimension() {
         return this.mainDimension;
     }
@@ -233,16 +198,12 @@ public class Config extends Object implements Serializable {
         return showAdvancedControls;
     }
 
-
-    /**
-     * @return never null
-     */
-    public CheckUpdatePolicy getCheckUpdatePolicy() {
-        return checkUpdatePolicy;
+    public boolean isAnnounceProgramUpdates() {
+        return announceProgramUpdates;
     }
 
-    public boolean isCheckForUnstableUpdates() {
-        return checkForUnstableUpdates;
+    public boolean isAnnounceUnstableUpdates() {
+        return announceUnstableUpdates;
     }
 
     public boolean isStartCentered() {
@@ -297,10 +258,6 @@ public class Config extends Object implements Serializable {
         return startMinimized;
     }
     
-    public boolean isDemandDeliveryReport() {
-        return demandDeliveryReport;
-    }
-    
     public boolean isShowAdvancedSettings() {
         return showAdvancedSettings;
     }
@@ -316,33 +273,17 @@ public class Config extends Object implements Serializable {
     public String[] getHiddenGateways() {
         return hiddenGateways;
     }
+    
+    public String getUUID() {
+        return uuid;
+    }
+
+    public int getUUIDMonth() {
+        return uuidMonth;
+    }
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="Set Methods">
-    public void setSenderName(String senderName) {
-        String old = this.senderName;
-        this.senderName = senderName;
-        changeSupport.firePropertyChange("senderName", old, senderName);
-    }
-
-    public void setSenderNumber(String senderNumber) {
-        String old = this.senderNumber;
-        this.senderNumber = senderNumber;
-        changeSupport.firePropertyChange("senderNumber", old, senderNumber);
-    }
-
-    public void setUseSenderID(boolean useSenderID) {
-        boolean oldUseSenderID = this.useSenderID;
-        this.useSenderID = useSenderID;
-        changeSupport.firePropertyChange("useSenderID", oldUseSenderID, useSenderID);
-    }
-
-    public void setForgetLayout(boolean forgetLayout) {
-        boolean oldForgetLayout = this.forgetLayout;
-        this.forgetLayout = forgetLayout;
-        changeSupport.firePropertyChange("forgetLayout", oldForgetLayout, forgetLayout);
-    }
-
     public void setMainDimension(Dimension mainDimension) {
         Dimension oldMainDimension = this.mainDimension;
         this.mainDimension = mainDimension;
@@ -398,27 +339,21 @@ public class Config extends Object implements Serializable {
         changeSupport.firePropertyChange("removeAccents", oldRemoveAccents, removeAccents);
     }
 
-    /** Set check update policy
-     * @param checkUpdatePolicy null is converted to default value
-     */
-    public void setCheckUpdatePolicy(CheckUpdatePolicy checkUpdatePolicy) {
-        if (checkUpdatePolicy == null) {
-            checkUpdatePolicy = CheckUpdatePolicy.CHECK_ALL;
-        }
-        CheckUpdatePolicy old = this.checkUpdatePolicy;
-        this.checkUpdatePolicy = checkUpdatePolicy;
-        changeSupport.firePropertyChange("checkUpdatePolicy", old, checkUpdatePolicy);
+    public void setAnnounceProgramUpdates(boolean announceProgramUpdates) {
+        boolean old = this.announceProgramUpdates;
+        this.announceProgramUpdates = announceProgramUpdates;
+        changeSupport.firePropertyChange("announceProgramUpdates", old, announceProgramUpdates);
     }
 
-    /** Set if should check for unstable versions. If currently using unstable
+    /** Set if should announce unstable versions. If currently using unstable
      version this is always set to true, regardless of the input. */
-    public void setCheckForUnstableUpdates(boolean checkForUnstableUpdates) {
+    public void setAnnounceUnstableUpdates(boolean announceUnstableUpdates) {
         if (!isStableVersion()) {
-            checkForUnstableUpdates = true;
+            announceUnstableUpdates = true;
         }
-        boolean old = this.checkForUnstableUpdates;
-        this.checkForUnstableUpdates = checkForUnstableUpdates;
-        changeSupport.firePropertyChange("checkForUnstableUpdates", old, checkForUnstableUpdates);
+        boolean old = this.announceUnstableUpdates;
+        this.announceUnstableUpdates = announceUnstableUpdates;
+        changeSupport.firePropertyChange("announceUnstableUpdates", old, announceUnstableUpdates);
     }
 
     public void setStartCentered(boolean startCentered) {
@@ -499,12 +434,6 @@ public class Config extends Object implements Serializable {
         changeSupport.firePropertyChange("startMinimized", old, startMinimized);
     }
     
-    public void setDemandDeliveryReport(boolean demandDeliveryReport) {
-        boolean oldDemandDeliveryReport = this.demandDeliveryReport;
-        this.demandDeliveryReport = demandDeliveryReport;
-        changeSupport.firePropertyChange("demandDeliveryReport", oldDemandDeliveryReport, demandDeliveryReport);
-    }
-    
     public void setShowAdvancedSettings(boolean showAdvancedSettings) {
         boolean old = this.showAdvancedSettings;
         this.showAdvancedSettings = showAdvancedSettings;
@@ -534,6 +463,18 @@ public class Config extends Object implements Serializable {
         this.hiddenGateways = hiddenGateways;
         changeSupport.firePropertyChange("hiddenGateways", old, hiddenGateways);
     }
+    
+    public void setUUID(String uuid) {
+        String old = this.uuid;
+        this.uuid = uuid;
+        changeSupport.firePropertyChange("uuid", old, uuid);
+    }
+
+    public void setUUIDMonth(int uuidMonth) {
+        int old = this.uuidMonth;
+        this.uuidMonth = uuidMonth;
+        changeSupport.firePropertyChange("uuidMonth", old, uuidMonth);
+    }
     // </editor-fold>
 
     /** Class representing system-wide config. This holds defaults used in
@@ -543,7 +484,7 @@ public class Config extends Object implements Serializable {
     public static class GlobalConfig {
         private static final GlobalConfig instance = new GlobalConfig();
 
-        private CheckUpdatePolicy checkUpdatePolicy = CheckUpdatePolicy.CHECK_ALL;
+        private boolean announceProgramUpdates = true;
 
         private GlobalConfig() {
         }
@@ -553,12 +494,9 @@ public class Config extends Object implements Serializable {
             return instance;
         }
 
-        /** @see Config#setCheckUpdatePolicy */
-        public void setCheckUpdatePolicy(CheckUpdatePolicy checkUpdatePolicy) {
-            if (checkUpdatePolicy == null) {
-                checkUpdatePolicy = CheckUpdatePolicy.CHECK_ALL;
-            }
-            this.checkUpdatePolicy = checkUpdatePolicy;
+        /** @see Config#setCheckProgramUpdates(boolean) */
+        public void setAnnounceProgramUpdates(boolean announceProgramUpdates) {
+            this.announceProgramUpdates = announceProgramUpdates;
         }
 
     }

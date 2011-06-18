@@ -4,7 +4,7 @@ function getName() {
 }
 
 function getVersion() {
-    return "2011-05-23"
+    return "2011-06-16"
 }
 
 function getMaintainer() {
@@ -12,7 +12,7 @@ function getMaintainer() {
 }
 
 function getMinProgramVersion() {
-    return "0.20.0"
+    return "0.22"
 }
 
 function getWebsite() {
@@ -56,17 +56,15 @@ function getDelayBetweenMessages() {
     return 0
 }
 
-function isLoginRequired() {
-    return false
-}
-
 function getSupportedLanguages() {
     return ["en", "cs"]
 }
 
-function send() {
-    var re, match, content, params, postData, ts
+function getFeatures() {
+    return ["SENDER_NUMBER"]
+}
 
+function send() {
     // change variables to correct form
     if (NUMBER.indexOf("+420") == 0) {
         NUMBER = NUMBER.substring(4)
@@ -74,12 +72,12 @@ function send() {
 
     // check whether there is a supplied sender number
     if (SENDERNUMBER.length == 0) {
-        EXEC.setErrorMessage(EXEC.ERROR_SIGNATURE_NEEDED)
+        EXEC.setProblem("SIGNATURE_NEEDED")
         return false
     }
     // sender number must start with +420
     if (SENDERNUMBER.indexOf("+420") != 0) {
-        EXEC.setErrorMessage("Číslo odesilatele musí pocházet z České republiky \
+        EXEC.setProblem("CUSTOM_MESSAGE", "Číslo odesilatele musí pocházet z České republiky \
 (začínat na +420). Aktuální číslo odesilatele: " + SENDERNUMBER)
         return false
     }
@@ -106,7 +104,7 @@ function send() {
     // check if message was successfully sent
     re = /SMS odesl.n.!/
     match = re.exec(content)
-    if (undefined != match) { // if found
+    if (match) {
         // all ok
         return true
     }
@@ -114,13 +112,12 @@ function send() {
     // look for possible error messages
     re = /<h1>\s*(.+)\s*/
     match = re.exec(content)
-    if (undefined != match) { // if found
+    if (match) {
         // gateway told us what's wrong
-        EXEC.setErrorMessage(EXEC.ERROR_GATEWAY_MESSAGE + match[1])
+        EXEC.setProblem("GATEWAY_MESSAGE", match[1])
         return false
     }
 
     // if neither success nor error message was found
-    EXEC.setErrorMessage(EXEC.ERROR_UNKNOWN)
     return false
 }

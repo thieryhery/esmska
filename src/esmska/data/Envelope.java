@@ -1,10 +1,3 @@
-/*
- * Envelope.java
- *
- * Created on 14. srpen 2007, 20:18
- *
- */
-
 package esmska.data;
 
 import java.util.ArrayList;
@@ -14,7 +7,9 @@ import java.util.Set;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.text.Normalizer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.lang.StringUtils;
 
 /** Class for preparing attributes of sms (single or multiple)
  *
@@ -24,6 +19,7 @@ public class Envelope {
     private static final Config config = Config.getInstance();
     private static final Logger logger = Logger.getLogger(Envelope.class.getName());
     private static final Gateways gateways = Gateways.getInstance();
+    private static final Signatures signatures = Signatures.getInstance();
     private String text;
     private Set<Contact> contacts = new HashSet<Contact>();
 
@@ -129,30 +125,13 @@ public class Envelope {
     
     /** Get maximum signature length of the contact gateways in the envelope */
     public int getSignatureLength() {
-        String senderName = config.getSenderName();
-        //user has no signature
-        if (!config.isUseSenderID() || senderName == null || senderName.length() <= 0) {
-            return 0;
-        }
-        
         int worstSignature = 0;
         //find maximum signature length
         for (Contact c : contacts) {
-            Gateway gateway = gateways.get(c.getGateway());
-            if (gateway == null) {
-                continue;
-            }
-            worstSignature = Math.max(worstSignature, 
-                    gateway.getSignatureExtraLength());
+            int length = getSignatureLength(c);
+            worstSignature = Math.max(worstSignature, length);
         }
-        
-        //no gateway supports signature
-        if (worstSignature == 0) {
-            return 0;
-        } else {
-            //add the signature length itself
-            return worstSignature + senderName.length();
-        }
+        return worstSignature;
     }
     
     /** generate list of sms's to send */
@@ -161,36 +140,42 @@ public class Envelope {
         for (Contact c : contacts) {
             Gateway gateway = gateways.get(c.getGateway());
             int limit = (gateway != null ? gateway.getMaxChars() : Integer.MAX_VALUE);
-            for (int i=0;i<text.length();i+=limit) {
-                String cutText = text.substring(i,Math.min(i+limit,text.length()));
+            String msgText = text;
+            // add user signature to the message
+            if (gateway != null) {
+                String signature = gateway.getSenderNameSuffix();
+                // only if signature is not already added
+                if (!msgText.trim().toLowerCase().endsWith(signature.trim().toLowerCase())) {
+                    msgText += signature;
+                }
+            }
+            // cut out the messages
+            for (int i=0;i<msgText.length();i+=limit) {
+                String cutText = msgText.substring(i,Math.min(i+limit,msgText.length()));
                 SMS sms = new SMS(c.getNumber(), cutText, c.getGateway());
                 sms.setName(c.getName());
-                if (config.isUseSenderID()) { //append signature if requested
-                    sms.setSenderNumber(config.getSenderNumber());
-                    sms.setSenderName(config.getSenderName());
-                }
                 list.add(sms);
             }
         }
-        logger.fine("Envelope specified for " + contacts.size() + 
-                " contact(s) generated " + list.size() + " SMS(s)");
+        logger.log(Level.FINE, "Envelope specified for {0} contact(s) generated {1} SMS(s)", 
+                new Object[]{contacts.size(), list.size()});
         return list;
     }
     
     /** get length of signature needed to be subtracted from message length */
     private int getSignatureLength(Contact c) {
         Gateway gateway = gateways.get(c.getGateway());
-        if (gateway != null && config.isUseSenderID() &&
-                config.getSenderName() != null &&
-                config.getSenderName().length() > 0) {
-            return gateway.getSignatureExtraLength() + config.getSenderName().length();
-        } else {
-            return 0;
+        if (gateway != null) {
+             Signature signature = signatures.get(gateway.getConfig().getSignature());
+             if (signature != null && StringUtils.length(signature.getUserName()) > 0) {
+                 return gateway.getSignatureExtraLength() + signature.getUserName().length();
+             }
         }
+        return 0;
     }
     
     /** remove diacritical marks from text */
-    private static String removeAccents(String text) {
+    public static String removeAccents(String text) {
         return Normalizer.normalize(text, Normalizer.Form.NFD).
                 replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
     }

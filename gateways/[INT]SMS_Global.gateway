@@ -4,7 +4,7 @@ function getName() {
 }
 
 function getVersion() {
-    return "2011-02-10"
+    return "2011-06-16"
 }
 
 function getMaintainer() {
@@ -12,7 +12,7 @@ function getMaintainer() {
 }
 
 function getMinProgramVersion() {
-    return "0.20.0"
+    return "0.22"
 }
 
 function getWebsite() {
@@ -51,25 +51,26 @@ function getDelayBetweenMessages() {
     return 0
 }
 
-function isLoginRequired() {
-    return true
-}
-
 function getSupportedLanguages() {
     return ["en"]
+}
+
+function getFeatures() {
+    return ["LOGIN_ONLY",
+            "SENDER_NUMBER"]
 }
 
 function send() {
 
     // check that login and password supplied
     if (LOGIN.length == 0 || PASSWORD.length == 0) {
-        EXEC.setErrorMessage(EXEC.ERROR_WRONG_AUTH)
+        EXEC.setProblem("WRONG_AUTH")
         return false
     }
     
     // check whether there is a supplied sender number
     if (SENDERNUMBER.length==0){
-        EXEC.setErrorMessage(EXEC.ERROR_SIGNATURE_NEEDED)
+        EXEC.setProblem("SIGNATURE_NEEDED")
         return false
     }
 	
@@ -86,9 +87,8 @@ function send() {
     // of them correctly, but doesn't send some other ones at all
     re = /[^\u0001-\u007f]/
     match = re.exec(MESSAGE)
-    if (undefined != match) {
-        EXEC.setErrorMessage("This gateway does not support national characters at the moment. " +
-        "Please enter English alphabet characters only.")
+    if (match) {
+        EXEC.setProblem("CUSTOM_MESSAGE", "This gateway does not support national characters at the moment. Please enter English alphabet characters only.")
         return false
     }
 
@@ -103,35 +103,35 @@ function send() {
     // wrong username/password
     re = /ERROR: 402|ERROR: 14/
     match = re.exec(content)
-    if (undefined != match) {
-        EXEC.setErrorMessage(EXEC.ERROR_WRONG_AUTH)
+    if (match) {
+        EXEC.setProblem("WRONG_AUTH")
         return false
     }
 	
     // invalid number
     re = /ERROR: 11|ERROR: 102/
     match = re.exec(content)
-    if (undefined != match) {
-        EXEC.setErrorMessage(EXEC.ERROR_WRONG_NUMBER)
+    if (match) {
+        EXEC.setProblem("WRONG_NUMBER")
         return false
     }
     
     // invalid signature
     re = /ERROR: 10$/
     match = re.exec(content)
-    if (undefined != match) {
-        EXEC.setErrorMessage(EXEC.ERROR_WRONG_SIGNATURE)
+    if (match) {
+        EXEC.setProblem("WRONG_SIGNATURE")
         return false
     }
 	
     // insufficient credit
     re = /ERROR: 88/
     match = re.exec(content)
-    if (undefined != match) {
-        EXEC.setErrorMessage(EXEC.ERROR_NO_CREDIT)
+    if (match) {
+        EXEC.setProblem("NO_CREDIT")
         var credit = check_credit()
-        if (undefined != credit) {
-            EXEC.setGatewayMessage(EXEC.INFO_CREDIT_REMAINING + credit)
+        if (credit) {
+            EXEC.setSupplementalMessage(EXEC.INFO_CREDIT_REMAINING + credit)
         }
         return false
     }
@@ -139,17 +139,16 @@ function send() {
     // check if message was successfully sent
     re = /OK: 0/
     match = re.exec(content)
-    if (undefined != match) {
+    if (match) {
         //all ok, get remanining balance and display it
         var credit = check_credit()
-        if (undefined != credit) {
-            EXEC.setGatewayMessage(EXEC.INFO_CREDIT_REMAINING + credit)
+        if (credit) {
+            EXEC.setSupplementalMessage(EXEC.INFO_CREDIT_REMAINING + credit)
         }
         return true
     }
 	
     // if neither success nor error message was found
-    EXEC.setErrorMessage(EXEC.ERROR_UNKNOWN)
     return false
 }
 
@@ -158,10 +157,10 @@ function check_credit() {
     content = EXEC.postURL("http://www.smsglobal.com/http-api.php", [], postData)
 	var re = /BALANCE: (.*);/
 	balance_match = re.exec(content)
-	if (undefined != match) {
+	if (balance_match) {
 	    return balance_match[1]
 	} else {
-	    return undefined
+	    return null
 	}
 }
 

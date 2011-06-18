@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package esmska.transfer;
 
 /** Enum of gateway variables applicable in the gateway script.
@@ -25,5 +20,5 @@ public enum GatewayVariable {
     /** Password to the gateway website */
     PASSWORD,
     /** This string is non-empty if a delivery report should be sent */
-    DELIVERY_REPORT
+    RECEIPT
 }

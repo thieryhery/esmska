@@ -1,12 +1,3 @@
-/*
- * PersistenceManager.java
- *
- * Created on 19. červenec 2007, 20:55
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
-
 package esmska.persistence;
 
 import esmska.Context;
@@ -38,6 +29,8 @@ import esmska.data.Gateways;
 import esmska.data.Queue;
 import esmska.data.SMS;
 import esmska.data.Gateway;
+import esmska.data.Signature;
+import esmska.data.Signatures;
 import esmska.integration.IntegrationAdapter;
 import esmska.utils.RuntimeUtils;
 import java.io.FilenameFilter;
@@ -70,6 +63,8 @@ public class PersistenceManager {
     private static final String LOG_FILENAME = "console.log";
     private static final String DEPRECATED_GWS_FILENAME = "deprecated.xml";
     private static final String GATEWAY_RESOURCE = "/esmska/gateways/scripts";
+    private static final String DEPRECATED_GWS_RESOURCE = GATEWAY_RESOURCE + "/" + DEPRECATED_GWS_FILENAME;
+    private static final String GATEWAY_PROPS_FILENAME = "gateways.json";
     
     private static File configDir =
             new File(System.getProperty("user.home") + File.separator + ".config",
@@ -90,9 +85,9 @@ public class PersistenceManager {
     private static File lockFile = new File(configDir, LOCK_FILENAME);
     private static File logFile = new File(configDir, LOG_FILENAME);
     private static File deprecatedGWsFile = new File(globalGatewayDir, DEPRECATED_GWS_FILENAME);
+    private static File gatewayPropsFile = new File(configDir, GATEWAY_PROPS_FILENAME);
     
     private static boolean customPathSet;
-    private FileLock lock;
     
     /** Creates a new instance of PersistenceManager */
     private PersistenceManager() throws IOException {
@@ -153,6 +148,7 @@ public class PersistenceManager {
         keyringFile = new File(configDir, KEYRING_FILENAME);
         lockFile = new File(configDir, LOCK_FILENAME);
         logFile = new File(configDir, LOG_FILENAME);
+        gatewayPropsFile = new File(configDir, GATEWAY_PROPS_FILENAME);
     }
     
     /** Get configuration directory */
@@ -220,7 +216,7 @@ public class PersistenceManager {
     }
     
     /** Load program configuration */
-    public void loadConfig() throws IOException {
+    public void loadConfig() throws Exception {
         //system-wide config
         if (globalConfigFile.exists()) {
             logger.fine("Loading global config...");
@@ -235,16 +231,20 @@ public class PersistenceManager {
 
         //per-user config
         if (configFile.exists()) {
-            logger.fine("Loading local config...");
-            XMLDecoder xmlDecoder = new XMLDecoder(
-                    new BufferedInputStream(new FileInputStream(configFile)));
-            Config newConfig = (Config) xmlDecoder.readObject();
-            xmlDecoder.close();
-            if (newConfig != null) {
+            try {
+                logger.fine("Loading local config...");
+                XMLDecoder xmlDecoder = new XMLDecoder(
+                        new BufferedInputStream(new FileInputStream(configFile)));
+                Config newConfig = (Config) xmlDecoder.readObject();
+                xmlDecoder.close();
                 Config.setSharedInstance(newConfig);
+            } catch (Exception ex) {
+                //set default config
+                Config.setSharedInstance(new Config());
+                throw ex;
             }
         } else {
-            //set new config, to apply changes made through global config
+            //set default config
             Config.setSharedInstance(new Config());
         }
     }
@@ -293,7 +293,7 @@ public class PersistenceManager {
     }
     
     /** Load sms queue */
-    public void loadQueue() throws IOException {
+    public void loadQueue() throws Exception {
         logger.fine("Loading queue");
         if (queueFile.exists()) {
             ArrayList<SMS> newQueue = ImportManager.importQueue(queueFile);
@@ -368,25 +368,28 @@ public class PersistenceManager {
         TreeSet<Gateway> localGateways = new TreeSet<Gateway>();
         HashSet<DeprecatedGateway> deprecatedGateways = new HashSet<DeprecatedGateway>();
         //global gateways
-        if (globalGatewayDir.exists()) {
-            globalGateways = new ArrayList<Gateway>(ImportManager.importGateways(globalGatewayDir));
-        } else if (PersistenceManager.class.getResource(GATEWAY_RESOURCE) != null) {
+        if (!RuntimeUtils.isRunAsWebStart() && globalGatewayDir.exists()) {
+            globalGateways = new ArrayList<Gateway>(ImportManager.importGateways(globalGatewayDir, false));
+        } else if (RuntimeUtils.isRunAsWebStart()) {
             globalGateways = new ArrayList<Gateway>(ImportManager.importGateways(GATEWAY_RESOURCE));
         } else {
-            throw new IOException("Could not find gateway directory '" +
-                    globalGatewayDir.getAbsolutePath() + "' nor jar gateway resource '" +
+            throw new IOException("Could not find gateways directory '" +
+                    globalGatewayDir.getAbsolutePath() + "' nor jar gateways resource '" +
                     GATEWAY_RESOURCE + "'");
         }
         //local gateways
         if (localGatewayDir.exists()) {
-            localGateways = ImportManager.importGateways(localGatewayDir);
+            localGateways = ImportManager.importGateways(localGatewayDir, true);
         }
         //deprecated gateways
-        if (deprecatedGWsFile.canRead()) {
+        if (!RuntimeUtils.isRunAsWebStart() && deprecatedGWsFile.canRead()) {
             deprecatedGateways = ImportManager.importDeprecatedGateways(deprecatedGWsFile);
-        } else if (!RuntimeUtils.isRunAsWebStart()) {
-            logger.warning("Can't find list of deprecated gateways: " +
-                    deprecatedGWsFile.getAbsolutePath());
+        } else if (RuntimeUtils.isRunAsWebStart()) {
+            deprecatedGateways = ImportManager.importDeprecatedGateways(DEPRECATED_GWS_RESOURCE);
+        } else {
+            logger.warning("Could not find deprecated gateways file: '" +
+                    deprecatedGWsFile.getAbsolutePath() + "' nor jar resource '" +
+                    DEPRECATED_GWS_RESOURCE + "'");
         }
         //filter out deprecated gateways
         for (DeprecatedGateway deprecated : deprecatedGateways) {
@@ -394,7 +397,7 @@ public class PersistenceManager {
                 Gateway op = it.next();
                 if (deprecated.getName().equals(op.getName()) &&
                         deprecated.getVersion().compareTo(op.getVersion()) >= 0) {
-                    logger.finer("Global gateway " + op.getName() + " is deprecated, skipping.");
+                    logger.log(Level.FINER, "Global gateway {0} is deprecated, skipping.", op.getName());
                     it.remove();
                 }
             }
@@ -403,7 +406,7 @@ public class PersistenceManager {
                 if (deprecated.getName().equals(op.getName()) &&
                         deprecated.getVersion().compareTo(op.getVersion()) >= 0) {
                     //delete deprecated local gateway
-                    logger.finer("Local gateway " + op.getName() + " is deprecated, deleting...");
+                    logger.log(Level.FINER, "Local gateway {0} is deprecated, deleting...", op.getName());
                     it.remove();
                     File opFile = null;
                     try {
@@ -425,10 +428,10 @@ public class PersistenceManager {
                 Gateway globalOp = globalGateways.get(index);
                 if (localOp.getVersion().compareTo(globalOp.getVersion()) > 0) {
                     globalGateways.set(index, localOp);
-                    logger.finer("Local gateway " + localOp.getName() + " is newer, replacing global one.");
+                    logger.log(Level.FINER, "Local gateway {0} is newer, replacing global one.", localOp.getName());
                 } else {
                     //delete legacy local gateways
-                    logger.finer("Local gateway " + localOp.getName() + " is same or older than global one, deleting...");
+                    logger.log(Level.FINER, "Local gateway {0} is same or older than global one, deleting...", localOp.getName());
                     File opFile = null;
                     try {
                         opFile = new File(localOp.getScript().toURI());
@@ -442,7 +445,7 @@ public class PersistenceManager {
                 }
             } else {
                 globalGateways.add(localOp);
-                logger.finer("Local gateway " + localOp.getName() + " is additional to global ones, adding to gateway list.");
+                logger.log(Level.FINER, "Local gateway {0} is additional to global ones, adding to gateway list.", localOp.getName());
             }
         }
         //load it
@@ -491,7 +494,8 @@ public class PersistenceManager {
         //move script file to correct location
         File scriptFileGlobal = new File(globalGatewayDir, scriptName + ".gateway");
         File scriptFileLocal = new File(localGatewayDir, scriptName + ".gateway");
-        if (canWrite(globalGatewayDir) && (!scriptFileGlobal.exists() || canWrite(scriptFileGlobal))) {
+        if (!RuntimeUtils.isRunAsWebStart() && canWrite(globalGatewayDir)
+                && (!scriptFileGlobal.exists() || canWrite(scriptFileGlobal))) {
             //first try global dir
             moveFileSafely(temp, scriptFileGlobal);
             //set readable for everyone
@@ -512,7 +516,8 @@ public class PersistenceManager {
         if (icon != null) {
             File iconFileGlobal = new File(globalGatewayDir, scriptName + ".png");
             File iconFileLocal = new File(localGatewayDir, scriptName + ".png");
-            if (canWrite(globalGatewayDir) && (!iconFileGlobal.exists() || canWrite(iconFileGlobal))) {
+            if (!RuntimeUtils.isRunAsWebStart() && canWrite(globalGatewayDir)
+                    && (!iconFileGlobal.exists() || canWrite(iconFileGlobal))) {
                 //first try global dir
                 moveFileSafely(iconTemp, iconFileGlobal);
                 logger.finer("Saved gateway icon into file: " + iconFileGlobal.getAbsolutePath());
@@ -528,6 +533,30 @@ public class PersistenceManager {
             }
         }
     }
+
+    /** Load gateway properties. */
+    public void loadGatewayProperties() throws Exception {
+        logger.fine("Loading gateway config...");
+        if (gatewayPropsFile.exists()) {
+            ImportManager.importGatewayProperties(gatewayPropsFile);
+        }
+    }
+
+    /** Save gateway properties. */
+    public void saveGatewayProperties() throws Exception {
+        logger.fine("Saving gateway properties...");
+
+        File temp = createTempFile();
+        FileOutputStream out = new FileOutputStream(temp);
+        ExportManager.exportGatewayProperties(Gateways.getInstance().getAll(), 
+                Signatures.getInstance().getAll(), Signature.DEFAULT, out);
+        out.flush();
+        out.getChannel().force(false);
+        out.close();
+
+        moveFileSafely(temp, gatewayPropsFile);
+        logger.log(Level.FINER, "Saved gateway config into file: {0}", gatewayPropsFile.getAbsolutePath());
+    }
     
     /** Checks if this is the first instance of the program.
      * Manages instances by using an exclusive lock on a file.
@@ -535,18 +564,27 @@ public class PersistenceManager {
      */
     public boolean isFirstInstance() {
         try {
-            FileOutputStream out = new FileOutputStream(lockFile);
-            FileChannel channel = out.getChannel();
-            lock = channel.tryLock();
-            if (lock == null) {
-                return false;
-            }
+            lock(lockFile);
             lockFile.deleteOnExit();
-        } catch (Throwable t) {
-            logger.log(Level.INFO, "Program lock could not be obtained", t);
+        } catch (Exception ex) {
+            logger.log(Level.INFO, "Program lock could not be obtained", ex);
             return false;
         }
         return true;
+    }
+
+    /** Try to obtain an exclusive lock on a File.
+     * @throws if lock can't be obtained
+     */
+    private void lock(File file) throws IOException {
+        Validate.notNull(file);
+
+        FileOutputStream out = new FileOutputStream(file);
+        FileChannel channel = out.getChannel();
+        FileLock lock = channel.tryLock();
+        if (lock == null) {
+            throw new IOException("Could not lock file: " + file.getAbsolutePath());
+        }
     }
 
     /** Proceed with a backup. Backs up today's configuration (if not backed up
@@ -637,7 +675,7 @@ public class PersistenceManager {
      * It doesn't have to exist. This method is available because of Java bug
      * on Windows which does not check permissions in File.canWrite() but only
      * read-only bit (<a href="http://www.velocityreviews.com/forums/t303199-java-reporting-incorrect-directory-permission-under-windows-xp.html">reference1</a>,
-     * <a href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4939819>referece2</a>).
+     * <a href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4939819">reference2</a>).
      * @param file File, existing or not existing; not null
      * @return true if file can be written, false if not
      */

@@ -40,13 +40,13 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="tabbedPane" alignment="1" pref="740" max="32767" attributes="0"/>
+                  <Component id="tabbedPane" alignment="1" pref="724" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="advancedCheckBox" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="514" max="32767" attributes="0"/>
+                      <EmptySpace pref="498" max="32767" attributes="0"/>
                       <Component id="closeButton" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="restartLabel" alignment="0" pref="740" max="32767" attributes="0"/>
+                  <Component id="restartLabel" alignment="0" pref="724" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -56,7 +56,7 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="1" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="tabbedPane" pref="351" max="32767" attributes="0"/>
+              <Component id="tabbedPane" pref="415" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="restartLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
@@ -94,45 +94,20 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="countryPrefixPanel" min="-2" max="-2" attributes="0"/>
-                          <Component id="useSenderIDCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="countryPrefixPanel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="-2" pref="17" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="jLabel3" linkSize="3" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="jLabel1" linkSize="3" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      </Group>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Group type="103" groupAlignment="0" attributes="0">
-                                          <Group type="102" alignment="0" attributes="0">
-                                              <Component id="senderNumberTextField" min="-2" max="-2" attributes="1"/>
-                                              <EmptySpace max="-2" attributes="0"/>
-                                              <Component id="senderNumberWarnLabel" min="-2" max="-2" attributes="0"/>
-                                          </Group>
-                                          <Component id="senderNameTextField" alignment="0" min="-2" max="-2" attributes="1"/>
-                                      </Group>
-                                  </Group>
-                                  <Component id="demandDeliveryReportCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
-                              </Group>
+                              <EmptySpace min="22" pref="22" max="22" attributes="0"/>
+                              <Component id="unstableUpdatesCheckBox" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <EmptySpace min="22" pref="22" max="22" attributes="0"/>
                               <Component id="logLocationLabel" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Component id="removeAccentsCheckBox" min="-2" max="-2" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="checkUpdatesCheckBox" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="unstableUpdatesCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="updatePolicyComboBox" alignment="0" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                          </Group>
+                          <Component id="announceProgramUpdatesCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="debugCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="322" max="32767" attributes="0"/>
+                      <EmptySpace pref="363" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -142,34 +117,16 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="countryPrefixPanel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="useSenderIDCheckBox" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="senderNumberWarnLabel" max="32767" attributes="1"/>
-                          <Component id="senderNumberTextField" alignment="0" max="32767" attributes="1"/>
-                          <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="senderNameTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="demandDeliveryReportCheckBox" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="removeAccentsCheckBox" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="checkUpdatesCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="updatePolicyComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
+                      <Component id="announceProgramUpdatesCheckBox" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="unstableUpdatesCheckBox" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="debugCheckBox" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="logLocationLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="50" max="32767" attributes="0"/>
+                      <EmptySpace pref="235" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -188,24 +145,20 @@
                 <BindingProperty name="selected" source="config" sourcePath="${removeAccents}" target="removeAccentsCheckBox" targetPath="selected" updateStrategy="0" immediately="false"/>
               </BindingProperties>
             </Component>
-            <Component class="javax.swing.JCheckBox" name="checkUpdatesCheckBox">
+            <Component class="javax.swing.JCheckBox" name="announceProgramUpdatesCheckBox">
               <Properties>
                 <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-                  <ResourceString bundle="esmska/resources/l10n.properties" key="ConfigFrame.checkUpdatesCheckBox.text" replaceFormat="l10n.getString(&quot;{key}&quot;)"/>
+                  <ResourceString bundle="esmska/resources/l10n.properties" key="ConfigFrame.announceProgramUpdatesCheckBox.text" replaceFormat="l10n.getString(&quot;{key}&quot;)"/>
                 </Property>
                 <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-                  <ResourceString bundle="esmska/resources/l10n.properties" key="ConfigFrame.checkUpdatesCheckBox.toolTipText" replaceFormat="l10n.getString(&quot;{key}&quot;)"/>
+                  <ResourceString bundle="esmska/resources/l10n.properties" key="ConfigFrame.announceProgramUpdatesCheckBox.toolTipText" replaceFormat="l10n.getString(&quot;{key}&quot;)"/>
                 </Property>
               </Properties>
               <BindingProperties>
-                <BindingProperty name="selected" source="config" sourcePath="${checkUpdatePolicy}" target="checkUpdatesCheckBox" targetPath="selected" updateStrategy="0" immediately="false">
-                  <Property name="converter" type="org.jdesktop.beansbinding.Converter" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                    <Connection code="new CheckUpdateConverter()" type="code"/>
-                  </Property>
-                </BindingProperty>
+                <BindingProperty name="selected" source="config" sourcePath="${announceProgramUpdates}" target="announceProgramUpdatesCheckBox" targetPath="selected" updateStrategy="0" immediately="false"/>
               </BindingProperties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkUpdatesCheckBoxActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="announceProgramUpdatesCheckBoxActionPerformed"/>
               </Events>
             </Component>
             <Component class="javax.swing.JCheckBox" name="unstableUpdatesCheckBox">
@@ -218,28 +171,7 @@
                 </Property>
               </Properties>
               <BindingProperties>
-                <BindingProperty name="selected" source="config" sourcePath="${checkForUnstableUpdates}" target="unstableUpdatesCheckBox" targetPath="selected" updateStrategy="0" immediately="false"/>
-              </BindingProperties>
-            </Component>
-            <Component class="javax.swing.JComboBox" name="updatePolicyComboBox">
-              <Properties>
-                <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                  <Connection code="new DefaultComboBoxModel(new CheckUpdatePolicy[]{CheckUpdatePolicy.CHECK_PROGRAM, CheckUpdatePolicy.CHECK_GATEWAYS, CheckUpdatePolicy.CHECK_ALL})" type="code"/>
-                </Property>
-                <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                  <Connection component="checkUpdatesCheckBox" name="toolTipText" type="property"/>
-                </Property>
-                <Property name="renderer" type="javax.swing.ListCellRenderer" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                  <Connection code="new UpdatePolicyComboRenderer()" type="code"/>
-                </Property>
-              </Properties>
-              <BindingProperties>
-                <BindingProperty name="selectedItem" source="config" sourcePath="${checkUpdatePolicy}" target="updatePolicyComboBox" targetPath="selectedItem" updateStrategy="0" immediately="false">
-                  <Property name="converter" type="org.jdesktop.beansbinding.Converter" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                    <Connection code="new UpdatePolicyConverter()" type="code"/>
-                  </Property>
-                </BindingProperty>
-                <BindingProperty name="enabled" source="checkUpdatesCheckBox" sourcePath="${selected}" target="updatePolicyComboBox" targetPath="enabled" updateStrategy="1" immediately="false"/>
+                <BindingProperty name="selected" source="config" sourcePath="${announceUnstableUpdates}" target="unstableUpdatesCheckBox" targetPath="selected" updateStrategy="0" immediately="false"/>
               </BindingProperties>
             </Component>
             <Component class="javax.swing.JCheckBox" name="debugCheckBox">
@@ -269,100 +201,6 @@
               </AuxValues>
             </Component>
             <Component class="esmska.gui.CountryPrefixPanel" name="countryPrefixPanel">
-            </Component>
-            <Component class="javax.swing.JCheckBox" name="useSenderIDCheckBox">
-              <Properties>
-                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-                  <ResourceString bundle="esmska/resources/l10n.properties" key="ConfigFrame.useSenderIDCheckBox.text" replaceFormat="l10n.getString(&quot;{key}&quot;)"/>
-                </Property>
-                <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-                  <ResourceString bundle="esmska/resources/l10n.properties" key="ConfigFrame.useSenderIDCheckBox.toolTipText" replaceFormat="l10n.getString(&quot;{key}&quot;)"/>
-                </Property>
-              </Properties>
-              <BindingProperties>
-                <BindingProperty name="selected" source="config" sourcePath="${useSenderID}" target="useSenderIDCheckBox" targetPath="selected" updateStrategy="0" immediately="false"/>
-              </BindingProperties>
-            </Component>
-            <Component class="javax.swing.JLabel" name="jLabel1">
-              <Properties>
-                <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
-                  <ComponentRef name="senderNumberTextField"/>
-                </Property>
-                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-                  <ResourceString bundle="esmska/resources/l10n.properties" key="ConfigFrame.jLabel1.text" replaceFormat="l10n.getString(&quot;{key}&quot;)"/>
-                </Property>
-                <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                  <Connection component="senderNumberTextField" name="toolTipText" type="property"/>
-                </Property>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JTextField" name="senderNumberTextField">
-              <Properties>
-                <Property name="columns" type="int" value="13"/>
-                <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-                  <ResourceString bundle="esmska/resources/l10n.properties" key="ConfigFrame.senderNumberTextField.toolTipText" replaceFormat="l10n.getString(&quot;{key}&quot;)"/>
-                </Property>
-              </Properties>
-              <BindingProperties>
-                <BindingProperty name="text" source="config" sourcePath="${senderNumber}" target="senderNumberTextField" targetPath="text" updateStrategy="0" immediately="false">
-                  <BindingParameter name="javax.swing.binding.ParameterKeys.TEXT_CHANGE_STRATEGY" value="javax.swing.binding.TextChangeStrategy.ON_TYPE"/>
-                </BindingProperty>
-                <BindingProperty name="enabled" source="useSenderIDCheckBox" sourcePath="${selected}" target="senderNumberTextField" targetPath="enabled" updateStrategy="1" immediately="false"/>
-              </BindingProperties>
-            </Component>
-            <Component class="javax.swing.JTextField" name="senderNameTextField">
-              <Properties>
-                <Property name="columns" type="int" value="13"/>
-                <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-                  <ResourceString bundle="esmska/resources/l10n.properties" key="ConfigFrame.senderNameTextField.toolTipText" replaceFormat="l10n.getString(&quot;{key}&quot;)"/>
-                </Property>
-              </Properties>
-              <BindingProperties>
-                <BindingProperty name="text" source="config" sourcePath="${senderName}" target="senderNameTextField" targetPath="text" updateStrategy="0" immediately="false">
-                  <BindingParameter name="javax.swing.binding.ParameterKeys.TEXT_CHANGE_STRATEGY" value="javax.swing.binding.TextChangeStrategy.ON_ACTION_OR_FOCUS_LOST"/>
-                </BindingProperty>
-                <BindingProperty name="enabled" source="useSenderIDCheckBox" sourcePath="${selected}" target="senderNameTextField" targetPath="enabled" updateStrategy="1" immediately="false"/>
-              </BindingProperties>
-            </Component>
-            <Component class="javax.swing.JCheckBox" name="demandDeliveryReportCheckBox">
-              <Properties>
-                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-                  <ResourceString bundle="esmska/resources/l10n.properties" key="ConfigFrame.demandDeliveryReportCheckBox.text" replaceFormat="l10n.getString(&quot;{key}&quot;)"/>
-                </Property>
-                <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-                  <ResourceString bundle="esmska/resources/l10n.properties" key="ConfigFrame.demandDeliveryReportCheckBox.toolTipText" replaceFormat="l10n.getString(&quot;{key}&quot;)"/>
-                </Property>
-              </Properties>
-              <BindingProperties>
-                <BindingProperty name="selected" source="config" sourcePath="${demandDeliveryReport}" target="demandDeliveryReportCheckBox" targetPath="selected" updateStrategy="0" immediately="false"/>
-                <BindingProperty name="enabled" source="useSenderIDCheckBox" sourcePath="${selected}" target="demandDeliveryReportCheckBox" targetPath="enabled" updateStrategy="0" immediately="false"/>
-              </BindingProperties>
-            </Component>
-            <Component class="javax.swing.JLabel" name="jLabel3">
-              <Properties>
-                <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
-                  <ComponentRef name="senderNameTextField"/>
-                </Property>
-                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-                  <ResourceString bundle="esmska/resources/l10n.properties" key="ConfigFrame.jLabel3.text" replaceFormat="l10n.getString(&quot;{key}&quot;)"/>
-                </Property>
-                <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                  <Connection component="senderNameTextField" name="toolTipText" type="property"/>
-                </Property>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JLabel" name="senderNumberWarnLabel">
-              <Properties>
-                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                  <Image iconType="3" name="/esmska/resources/warning-16.png"/>
-                </Property>
-                <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                  <Connection component="senderNumberTextField" name="toolTipText" type="property"/>
-                </Property>
-              </Properties>
-              <AuxValues>
-                <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="senderNumberWarnLabel.setVisible(false);"/>
-              </AuxValues>
             </Component>
           </SubComponents>
         </Container>
@@ -406,7 +244,7 @@
                           <Component id="toolbarVisibleCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="advancedControlsCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="471" max="32767" attributes="0"/>
+                      <EmptySpace pref="455" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -435,7 +273,7 @@
                       <Component id="tipsCheckBox" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="advancedControlsCheckBox" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="115" max="32767" attributes="0"/>
+                      <EmptySpace pref="179" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -583,7 +421,7 @@
         <Container class="javax.swing.JPanel" name="gatewayPanel">
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
-              <JTabbedPaneConstraints tabName="&amp;Gateways">
+              <JTabbedPaneConstraints tabName="Gateway&amp;s">
                 <Property name="tabTitle" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
                   <ResourceString bundle="esmska/resources/l10n.properties" key="ConfigFrame.gatewayPanel.TabConstraints.tabTitle" replaceFormat="l10n.getString(&quot;{key}&quot;)"/>
                 </Property>
@@ -597,36 +435,36 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="gwTipLabel" alignment="0" pref="734" max="32767" attributes="0"/>
                           <Group type="102" alignment="1" attributes="0">
-                              <Component id="jScrollPane1" pref="476" max="32767" attributes="0"/>
+                              <Component id="jScrollPane1" pref="473" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Component id="clearKeyringButton" min="-2" max="-2" attributes="0"/>
-                                  <Component id="gwDetailsPanel" min="-2" max="-2" attributes="0"/>
+                                  <Component id="gwDetailsPanel" alignment="0" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
+                          <Component id="gwTipLabel" alignment="0" pref="712" max="32767" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" pref="0" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="1" attributes="0">
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
                               <Component id="gwDetailsPanel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace pref="98" max="32767" attributes="0"/>
+                              <EmptySpace pref="42" max="32767" attributes="0"/>
                               <Component id="clearKeyringButton" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="jScrollPane1" alignment="0" pref="273" max="32767" attributes="2"/>
+                          <Component id="jScrollPane1" pref="335" max="32767" attributes="2"/>
                       </Group>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="gwTipLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -670,7 +508,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JTable() {&#xa;    @Override&#xa;    public void tableChanged(TableModelEvent e) {&#xa;        int row = getSelectedRow();&#xa;        int column = getSelectedColumn();&#xa;        super.tableChanged(e);&#xa;        changeSelection(row, column, false, false);&#xa;    }&#xa;}"/>
+                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JTable() {&#xa;    @Override&#xa;    public void tableChanged(TableModelEvent e) {&#xa;        int row = getSelectedRow();&#xa;        int column = getSelectedColumn();&#xa;        super.tableChanged(e);&#xa;        if (row &lt; getRowCount() &amp;&amp; column &lt; getColumnCount()) {&#xa;            changeSelection(row, column, false, false);&#xa;        }&#xa;    }&#xa;}"/>
                   </AuxValues>
                 </Component>
               </SubComponents>
@@ -700,33 +538,54 @@
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" attributes="0">
-                          <EmptySpace min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="jLabel11" linkSize="4" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace min="-2" max="-2" attributes="0"/>
-                                  <Component id="loginField" max="32767" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="loginField" pref="119" max="32767" attributes="0"/>
                               </Group>
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="jLabel12" linkSize="4" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Group type="102" attributes="0">
-                                          <Component id="showPasswordCheckBox" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace pref="25" max="32767" attributes="0"/>
-                                      </Group>
-                                      <Component id="passwordField" max="32767" attributes="0"/>
+                                      <Component id="showPasswordCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="passwordField" alignment="0" pref="119" max="32767" attributes="0"/>
                                   </Group>
                               </Group>
+                              <Group type="102" alignment="1" attributes="0">
+                                  <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="signatureComboBox" pref="72" max="32767" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="sigDelButton" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <Group type="102" attributes="0">
+                                  <EmptySpace min="6" pref="6" max="6" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Component id="senderNumberLabel" linkSize="10" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="senderNumberTextField" pref="106" max="32767" attributes="1"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="senderNumberWarnLabel" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Component id="senderNameLabel" linkSize="10" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="senderNameTextField" pref="128" max="32767" attributes="2"/>
+                                      </Group>
+                                  </Group>
+                              </Group>
+                              <Component id="demandDeliveryReportCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace min="-2" pref="0" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
-                          <EmptySpace max="-2" attributes="0"/>
+                      <Group type="102" alignment="0" attributes="0">
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="jLabel11" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="loginField" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -739,6 +598,25 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="showPasswordCheckBox" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="2" attributes="0">
+                              <Component id="sigDelButton" alignment="2" min="-2" max="-2" attributes="0"/>
+                              <Component id="signatureComboBox" alignment="2" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel2" alignment="2" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="2" attributes="0">
+                              <Component id="senderNumberLabel" alignment="2" min="-2" max="-2" attributes="0"/>
+                              <Component id="senderNumberTextField" alignment="2" min="-2" max="-2" attributes="1"/>
+                              <Component id="senderNumberWarnLabel" alignment="2" min="-2" max="-2" attributes="1"/>
+                          </Group>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="2" attributes="0">
+                              <Component id="senderNameLabel" alignment="2" min="-2" max="-2" attributes="0"/>
+                              <Component id="senderNameTextField" alignment="2" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="demandDeliveryReportCheckBox" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -767,6 +645,9 @@
                       <Connection component="passwordField" name="toolTipText" type="property"/>
                     </Property>
                   </Properties>
+                  <BindingProperties>
+                    <BindingProperty name="enabled" source="passwordField" sourcePath="${enabled}" target="jLabel12" targetPath="enabled" updateStrategy="1" immediately="false"/>
+                  </BindingProperties>
                 </Component>
                 <Component class="javax.swing.JTextField" name="loginField">
                   <Properties>
@@ -785,6 +666,9 @@
                       <ResourceString bundle="esmska/resources/l10n.properties" key="ConfigFrame.showPasswordCheckBox.toolTipText" replaceFormat="l10n.getString(&quot;{key}&quot;)"/>
                     </Property>
                   </Properties>
+                  <BindingProperties>
+                    <BindingProperty name="enabled" source="passwordField" sourcePath="${enabled}" target="showPasswordCheckBox" targetPath="enabled" updateStrategy="1" immediately="false"/>
+                  </BindingProperties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="showPasswordCheckBoxActionPerformed"/>
                   </Events>
@@ -801,6 +685,114 @@
                       <Connection component="loginField" name="toolTipText" type="property"/>
                     </Property>
                   </Properties>
+                  <BindingProperties>
+                    <BindingProperty name="enabled" source="loginField" sourcePath="${enabled}" target="jLabel11" targetPath="enabled" updateStrategy="1" immediately="false"/>
+                  </BindingProperties>
+                </Component>
+                <Component class="esmska.gui.SignatureComboBox" name="signatureComboBox">
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="signatureComboBoxActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabel2">
+                  <Properties>
+                    <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
+                      <ComponentRef name="signatureComboBox"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                      <ResourceString bundle="esmska/resources/l10n.properties" key="ConfigFrame.jLabel2.text" replaceFormat="l10n.getString(&quot;{key}&quot;)"/>
+                    </Property>
+                    <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                      <Connection component="signatureComboBox" name="getToolTipText" type="method"/>
+                    </Property>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JButton" name="sigDelButton">
+                  <Properties>
+                    <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                      <Image iconType="3" name="/esmska/resources/delete-16.png"/>
+                    </Property>
+                    <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                      <ResourceString bundle="esmska/resources/l10n.properties" key="ConfigFrame.sigDelButton.toolTipText" replaceFormat="l10n.getString(&quot;{key}&quot;)"/>
+                    </Property>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sigDelButtonActionPerformed"/>
+                  </Events>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="sigDelButton.putClientProperty(SubstanceLookAndFeel.FLAT_PROPERTY, Boolean.TRUE);&#xa;"/>
+                  </AuxValues>
+                </Component>
+                <Component class="javax.swing.JTextField" name="senderNumberTextField">
+                  <Properties>
+                    <Property name="columns" type="int" value="12"/>
+                    <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                      <ResourceString bundle="esmska/resources/l10n.properties" key="ConfigFrame.senderNumberTextField.toolTipText" replaceFormat="l10n.getString(&quot;{key}&quot;)"/>
+                    </Property>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JTextField" name="senderNameTextField">
+                  <Properties>
+                    <Property name="columns" type="int" value="12"/>
+                    <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                      <ResourceString bundle="esmska/resources/l10n.properties" key="ConfigFrame.senderNameTextField.toolTipText" replaceFormat="l10n.getString(&quot;{key}&quot;)"/>
+                    </Property>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="demandDeliveryReportCheckBox">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                      <ResourceString bundle="esmska/resources/l10n.properties" key="ConfigFrame.demandDeliveryReportCheckBox.text" replaceFormat="l10n.getString(&quot;{key}&quot;)"/>
+                    </Property>
+                    <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                      <ResourceString bundle="esmska/resources/l10n.properties" key="ConfigFrame.demandDeliveryReportCheckBox.toolTipText" replaceFormat="l10n.getString(&quot;{key}&quot;)"/>
+                    </Property>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="demandDeliveryReportCheckBoxActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JLabel" name="senderNumberLabel">
+                  <Properties>
+                    <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
+                      <ComponentRef name="senderNumberTextField"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                      <ResourceString bundle="esmska/resources/l10n.properties" key="ConfigFrame.senderNumberLabel.text" replaceFormat="l10n.getString(&quot;{key}&quot;)"/>
+                    </Property>
+                    <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                      <Connection component="senderNumberTextField" name="toolTipText" type="property"/>
+                    </Property>
+                  </Properties>
+                  <BindingProperties>
+                    <BindingProperty name="enabled" source="senderNumberTextField" sourcePath="${enabled}" target="senderNumberLabel" targetPath="enabled" updateStrategy="1" immediately="false"/>
+                  </BindingProperties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="senderNameLabel">
+                  <Properties>
+                    <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
+                      <ComponentRef name="senderNameTextField"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                      <ResourceString bundle="esmska/resources/l10n.properties" key="ConfigFrame.senderNameLabel.text" replaceFormat="l10n.getString(&quot;{key}&quot;)"/>
+                    </Property>
+                    <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                      <Connection component="senderNameTextField" name="toolTipText" type="property"/>
+                    </Property>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="senderNumberWarnLabel">
+                  <Properties>
+                    <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                      <Image iconType="3" name="/esmska/resources/warning-16.png"/>
+                    </Property>
+                    <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                      <Connection component="senderNumberTextField" name="toolTipText" type="property"/>
+                    </Property>
+                  </Properties>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="senderNumberWarnLabel.setVisible(false);"/>
+                  </AuxValues>
                 </Component>
               </SubComponents>
             </Container>
@@ -830,7 +822,7 @@
                       <Component id="reducedHistorySpinner" min="-2" pref="65" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jLabel18" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="212" max="32767" attributes="0"/>
+                      <EmptySpace pref="196" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -937,7 +929,7 @@
                                   </Group>
                               </Group>
                           </Group>
-                          <Component id="jLabel17" alignment="0" pref="728" max="32767" attributes="0"/>
+                          <Component id="jLabel17" alignment="0" pref="712" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -965,7 +957,7 @@
                           <Component id="jLabel16" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="socksProxyTextField" linkSize="9" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="153" max="32767" attributes="0"/>
+                      <EmptySpace pref="217" max="32767" attributes="0"/>
                       <Component id="jLabel17" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>

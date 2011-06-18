@@ -1,9 +1,3 @@
-/*
- * SMSPanel.java
- *
- * Created on 8. říjen 2007, 16:19
- */
-
 package esmska.gui;
 
 import esmska.Context;
@@ -15,6 +9,7 @@ import esmska.data.Envelope;
 import esmska.data.Keyring;
 import esmska.data.Links;
 import esmska.data.Gateway;
+import esmska.data.Gateway.Feature;
 import esmska.data.Gateways;
 import esmska.data.Icons;
 import esmska.data.Queue;
@@ -147,6 +142,17 @@ public class SMSPanel extends javax.swing.JPanel {
             public void actionPerformed(ActionEvent e) {
                 updateCredentialsInfoLabel();
                 SMSPanel.this.revalidate();
+            }
+        });
+        
+        // allow to send messages once the program is fully loaded
+        Context.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (!StringUtils.equals(evt.getPropertyName(), "everythingLoaded")) {
+                    return;
+                }
+                sendAction.updateStatus();
             }
         });
     }
@@ -409,7 +415,7 @@ public class SMSPanel extends javax.swing.JPanel {
      */
     private void updateCredentialsInfoLabel() {
         Gateway gateway = gatewayComboBox.getSelectedGateway();
-        if (gateway != null && gateway.isLoginRequired() &&
+        if (gateway != null && gateway.hasFeature(Feature.LOGIN_ONLY) &&
                 keyring.getKey(gateway.getName()) == null) {
             credentialsInfoLabel.setVisible(true);
         } else {
@@ -696,7 +702,7 @@ infoPanelLayout.setHorizontalGroup(
         }
         /** update status according to current conditions */
         public void updateStatus() {
-            this.setEnabled(validateForm(false));
+            this.setEnabled(validateForm(false) && Context.everythingLoaded());
         }
     }
     

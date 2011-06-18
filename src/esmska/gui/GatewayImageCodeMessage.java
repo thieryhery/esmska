@@ -1,15 +1,9 @@
-
-/*
- * GatewayImageCodeMessage.java
- *
- * Created on 23.1.2011, 21:58:39
- */
 package esmska.gui;
 
 import esmska.data.Config;
 import esmska.data.Icons;
 import esmska.data.SMS;
-import esmska.gui.GatewayMessageDialog.TaskPane;
+import esmska.gui.GatewayMessageFrame.TaskPane;
 import esmska.utils.RuntimeUtils;
 import java.awt.Component;
 import java.awt.GridLayout;

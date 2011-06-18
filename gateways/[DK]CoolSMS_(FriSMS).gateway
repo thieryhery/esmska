@@ -4,7 +4,7 @@ function getName() {
 }
 
 function getVersion() {
-    return "2010-07-24"
+    return "2011-06-16"
 }
 
 function getMaintainer() {
@@ -12,7 +12,7 @@ function getMaintainer() {
 }
 
 function getMinProgramVersion() {
-    return "0.20.0"
+    return "0.22"
 }
 
 function getWebsite() {
@@ -51,20 +51,18 @@ function getDelayBetweenMessages() {
     return 0
 }
 
-function isLoginRequired() {
-    return true
-}
-
 function getSupportedLanguages() {
     return ["dk"]
 }
 
-function send() {
-    var re, match, match2, content, content2, params, postData, state, tries, test
+function getFeatures() {
+    return ["LOGIN_ONLY"]
+}
 
+function send() {
     // check that login and password supplied
     if (LOGIN.length == 0 || PASSWORD.length == 0) {
-        EXEC.setErrorMessage(EXEC.ERROR_WRONG_AUTH)
+        EXEC.setProblem("WRONG_AUTH")
         return false
     }
 
@@ -78,8 +76,8 @@ function send() {
     // check login
     re = /<form name="freesender" method="post" action="\/FriSMS.html" id="freeform">/
     match = re.exec(content)    
-    if(undefined == match) {
-    	 EXEC.setErrorMessage(EXEC.ERROR_WRONG_AUTH)
+    if(!match) {
+    	 EXEC.setProblem("WRONG_AUTH")
          return false
     }
 
@@ -91,7 +89,7 @@ function send() {
     // check sending message
     re = /"succes"/
     match2 = re.exec(content)
-    if (undefined != match2) {
+    if (match2) {
       
     	re = /"msgid":([0-9]+)}/
     	match = re.exec(content)
@@ -107,13 +105,13 @@ function send() {
     	
     	// received, rejected
     	if(state == "rejected") {
-    		EXEC.setErrorMessage(EXEC.ERROR_NO_REASON)
+    		EXEC.setProblem("NO_REASON")
     		return false
     	} else if (state == "false") {
-    		EXEC.setErrorMessage(EXEC.ERROR_WRONG_NUMBER)
+    		EXEC.setProblem("WRONG_NUMBER")
     		return false
     	} else if (state == "queued") {
-    		EXEC.setGatewayMessage("Mobile phone is turned off or out of coverage. Message will be delivered later.")
+    		EXEC.setSupplementalMessage("Mobile phone is turned off or out of coverage. Message will be delivered later.")
     		return true
     	} else if (state == "received") {
     		return true
@@ -122,16 +120,12 @@ function send() {
     }
 
 	// if neither success nor error message was found
-	EXEC.setErrorMessage(EXEC.ERROR_UNKNOWN)
 	return false
 
 }
 
 // check current status for message
 function checkStatus(msgid){
-  
-	var content, state
-	
 	postData = ["msgid",msgid]
 	content = EXEC.postURL("http://www.coolsms.dk/ajax/checkStatus.php", [], postData)
 	

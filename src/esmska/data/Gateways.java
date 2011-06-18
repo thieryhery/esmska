@@ -1,13 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package esmska.data;
 
 import esmska.data.event.ValuedEventSupport;
 import esmska.data.event.ValuedListener;
 import esmska.utils.L10N;
+import esmska.data.Gateway.Feature;
 import java.beans.IntrospectionException;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -33,6 +29,7 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import javax.script.SimpleScriptContext;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
@@ -42,6 +39,9 @@ import org.apache.commons.lang.Validate;
  */
 public class Gateways {
 
+    /** Events fired when gateway collection is changed.
+     * Please note that this events may be fired even from a non-EDT thread.
+     */
     public static enum Events {
         ADDED_GATEWAY,
         ADDED_GATEWAYS,
@@ -58,9 +58,10 @@ public class Gateways {
     private static final Logger logger = Logger.getLogger(Gateways.class.getName());
     private static final ResourceBundle l10n = L10N.l10nBundle;
     private static final SortedSet<Gateway> gateways = Collections.synchronizedSortedSet(new TreeSet<Gateway>());
-    private static final HashSet<DeprecatedGateway> deprecatedGateways = new HashSet<DeprecatedGateway>();
+    private static final Set<DeprecatedGateway> deprecatedGateways = Collections.synchronizedSet(new HashSet<DeprecatedGateway>());
     private static final Keyring keyring = Keyring.getInstance();
     private static final ScriptEngineManager manager = new ScriptEngineManager();
+    private static final ScriptEngine jsEngine = manager.getEngineByName("js");
 
     // <editor-fold defaultstate="collapsed" desc="ValuedEvent support">
     private ValuedEventSupport<Events, Gateway> valuedSupport = new ValuedEventSupport<Events, Gateway>(this);
@@ -94,9 +95,12 @@ public class Gateways {
         return instance;
     }
 
-    /** Get unmodifiable collection of all gateways sorted by name */
-    public SortedSet<Gateway> getAll() {
-        return Collections.unmodifiableSortedSet(gateways);
+    /** Get collection of all gateways sorted by name */
+    public TreeSet<Gateway> getAll() {
+        synchronized(gateways) {
+            TreeSet<Gateway> gws = new TreeSet<Gateway>(gateways);
+            return gws;
+        }
     }
 
     /** Add new gateway
@@ -204,14 +208,19 @@ public class Gateways {
 
     /** Get set of currently deprecated gateways */
     public HashSet<DeprecatedGateway> getDeprecatedGateways() {
-        return deprecatedGateways;
+        synchronized(deprecatedGateways) {
+            HashSet<DeprecatedGateway> gws = new HashSet<DeprecatedGateway>(deprecatedGateways);
+            return gws;
+        }
     }
 
     /** Set currently deprecated gateways. May be null to clear them. */
     public void setDeprecatedGateways(Set<DeprecatedGateway> deprecatedGateways) {
-        Gateways.deprecatedGateways.clear();
-        if (deprecatedGateways != null) {
-            Gateways.deprecatedGateways.addAll(deprecatedGateways);
+        synchronized(deprecatedGateways) {
+            Gateways.deprecatedGateways.clear();
+            if (deprecatedGateways != null) {
+                Gateways.deprecatedGateways.addAll(deprecatedGateways);
+            }
         }
     }
 
@@ -351,7 +360,7 @@ public class Gateways {
         HashMap<Gateway, Integer> scores = new HashMap<Gateway, Integer>();
         for (Gateway gw : selectedGateways) {
             scores.put(gw, 0);
-            if (gw.isLoginRequired() && keyring.getKey(gw.getName()) == null) {
+            if (gw.hasFeature(Feature.LOGIN_ONLY) && keyring.getKey(gw.getName()) == null) {
                 scores.put(gw, scores.get(gw) - 1);
             }
             if (!isNumberPreferred(gw, number)) {
@@ -384,9 +393,11 @@ public class Gateways {
                 result.put(gw, 1);
             }
         }
-        for (Gateway gw : getAll()) {
-            if (!result.containsKey(gw.getName())) {
-                result.put(gw.getName(), 0);
+        synchronized(gateways) {
+            for (Gateway gw : gateways) {
+                if (!result.containsKey(gw.getName())) {
+                    result.put(gw.getName(), 0);
+                }
             }
         }
         return result;
@@ -485,7 +496,6 @@ public class Gateways {
      */
     public static GatewayInfo parseInfo(URL script) throws IOException, ScriptException, IntrospectionException {
         logger.log(Level.FINER, "Parsing info of script: {0}", script.toExternalForm());
-        ScriptEngine jsEngine = manager.getEngineByName("js");
         if (jsEngine == null) {
             throw new IntrospectionException("JavaScript execution not supported");
         }
@@ -494,6 +504,8 @@ public class Gateways {
         try {
             reader = new InputStreamReader(script.openStream(), "UTF-8");
             //the script must be evaluated before extracting the interface
+            SimpleScriptContext context = new SimpleScriptContext();
+            jsEngine.setContext(context);
             jsEngine.eval(reader);
             GatewayInfo gatewayInfo = invocable.getInterface(GatewayInfo.class);
             return gatewayInfo;
@@ -509,9 +521,11 @@ public class Gateways {
     /** Get gateways marked as favorites */
     public TreeSet<Gateway> getFavorites() {
         TreeSet<Gateway> favorites = new TreeSet<Gateway>();
-        for (Gateway gw : getAll()) {
-            if (gw.isFavorite()) {
-                favorites.add(gw);
+        synchronized(gateways) {
+            for (Gateway gw : gateways) {
+                if (gw.isFavorite()) {
+                    favorites.add(gw);
+                }
             }
         }
         return favorites;
@@ -520,9 +534,11 @@ public class Gateways {
     /** Get gateways marked as hidden */
     public TreeSet<Gateway> getHidden() {
         TreeSet<Gateway> hidden = new TreeSet<Gateway>();
-        for (Gateway gw : getAll()) {
-            if (gw.isHidden()) {
-                hidden.add(gw);
+        synchronized(gateways) {
+            for (Gateway gw : gateways) {
+                if (gw.isHidden()) {
+                    hidden.add(gw);
+                }
             }
         }
         return hidden;
@@ -531,9 +547,11 @@ public class Gateways {
     /** Get just the visible (non-hidden) gateways */
     public TreeSet<Gateway> getVisible() {
         TreeSet<Gateway> visible = new TreeSet<Gateway>();
-        for (Gateway gw : getAll()) {
-            if (!gw.isHidden()) {
-                visible.add(gw);
+        synchronized(gateways) {
+            for (Gateway gw : gateways) {
+                if (!gw.isHidden()) {
+                    visible.add(gw);
+                }
             }
         }
         return visible;

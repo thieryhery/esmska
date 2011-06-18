@@ -1,17 +1,7 @@
-/*
- * Main.java
- *
- * Created on 24. srpen 2007, 22:20
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
-
 package esmska;
 
 import esmska.gui.ThemeManager;
 import esmska.update.LegacyUpdater;
-import java.beans.IntrospectionException;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,6 +18,7 @@ import esmska.gui.ExceptionDialog;
 import esmska.gui.InitWizardDialog;
 import esmska.persistence.PersistenceManager;
 import esmska.transfer.ProxyManager;
+import esmska.update.Statistics;
 import esmska.utils.L10N;
 import esmska.utils.LogSupport;
 import esmska.utils.RuntimeUtils;
@@ -67,7 +58,19 @@ public class Main {
 
         //detect JVM and warn if not not supported
         if (!RuntimeUtils.isSupportedJava()) {
-            logger.severe(l10n.getString("Main.unsupported_java"));
+            logger.warning("You are probably running the program on an unsupported "
+                    + "Java version! Program might not work correctly with it! "
+                    + "The tested Java versions are: Sun Java 6, OpenJDK 6, Apple Java 6.");
+        }
+
+        // halt for Webstart on OpenJDK, it currently doesn't work
+        // see http://code.google.com/p/esmska/issues/detail?id=335
+        // see http://code.google.com/p/esmska/issues/detail?id=357
+        // see http://code.google.com/p/esmska/issues/detail?id=358
+        if (RuntimeUtils.isOpenJDK() && RuntimeUtils.isRunAsWebStart()) {
+            logger.severe("Running as Java WebStart on OpenJDK, that's currently unsupported! Quitting.");
+            JOptionPane.showMessageDialog(null, l10n.getString("Main.brokenWebstart"), "Esmska", JOptionPane.ERROR_MESSAGE);
+            System.exit(99);
         }
 
         //parse commandline arguments
@@ -77,8 +80,8 @@ public class Main {
         }
 
         //log some basic stuff for debugging
-        logger.fine("Esmska " + Config.getLatestVersion() + " starting...");
-        logger.finer("System info: " + RuntimeUtils.getSystemInfo());
+        logger.log(Level.FINE, "Esmska {0} starting...", Config.getLatestVersion());
+        logger.log(Level.FINER, "System info: {0}", RuntimeUtils.getSystemInfo());
 
         //portable mode
         configPath = clp.getConfigPath();
@@ -102,7 +105,7 @@ public class Main {
                         int result = chooser.showOpenDialog(null);
                         if (result == JFileChooser.APPROVE_OPTION) {
                             configPath = chooser.getSelectedFile().getPath();
-                            logger.config("New config path: " + configPath);
+                            logger.log(Level.CONFIG, "New config path: {0}", configPath);
                         }
                     }
                 });
@@ -112,13 +115,11 @@ public class Main {
         }
 
         //get persistence manager
-        PersistenceManager pm = null;
         try {
             if (configPath != null) {
                 PersistenceManager.setCustomDirs(configPath, configPath);
             }
             PersistenceManager.instantiate();
-            pm = Context.persistenceManager;
         } catch (Exception ex) {
             logger.log(Level.SEVERE, "Could not create program dir or read config files", ex);
             try {
@@ -140,12 +141,13 @@ public class Main {
                 System.exit(5);
             }
         }
+        PersistenceManager pm = Context.persistenceManager;
 
         //backup files
         try {
             pm.backupConfigFiles();
         } catch (IOException ex) {
-            logger.log(Level.WARNING, "Could not back up configuration", ex);
+            logger.log(Level.SEVERE, "Could not back up configuration", ex);
         }
 
         //initialize file logging
@@ -153,56 +155,39 @@ public class Main {
         try {
             LogSupport.initFileHandler(logFile);
         } catch (IOException ex) {
-            logger.log(Level.WARNING, "Could not start logging into " + logFile.getAbsolutePath(), ex);
+            logger.log(Level.SEVERE, "Could not start logging into " + logFile.getAbsolutePath(), ex);
         } finally {
             //no need to store records anymore
             LogSupport.storeRecords(false);
         }
 
-        //load user files
+        //load config file
         try {
             pm.loadConfig();
         } catch (Exception ex) {
-            logger.log(Level.WARNING, "Could not load config file", ex);
+            logger.log(Level.SEVERE, "Could not load config file", ex);
         }
-        try {
-            pm.loadGateways();
-        } catch (IntrospectionException ex) { //it seems there is not JavaScript support
-            logger.log(Level.SEVERE, "Current JRE doesn't support JavaScript execution", ex);
-            try {
-                SwingUtilities.invokeAndWait(new Runnable() {
-                    @Override
-                    public void run() {
-                        JOptionPane.showMessageDialog(null, l10n.getString("Main.no_javascript"),
-                                null, JOptionPane.ERROR_MESSAGE);
-                    }
-                });
-            } catch (Exception e) {
-                logger.log(Level.SEVERE, "Can't display error message", e);
-            }
-            System.exit(2);
-        } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Could not load gateways", ex);
-        }
+        
+        //load rest of user files
         try {
             pm.loadContacts();
         } catch (Exception ex) {
-            logger.log(Level.WARNING, "Could not load contacts file", ex);
+            logger.log(Level.SEVERE, "Could not load contacts file", ex);
         }
         try {
             pm.loadQueue();
         } catch (Exception ex) {
-            logger.log(Level.WARNING, "Could not load queue file", ex);
+            logger.log(Level.SEVERE, "Could not load queue file", ex);
         }
         try {
             pm.loadHistory();
         } catch (Exception ex) {
-            logger.log(Level.WARNING, "Could not load history file", ex);
+            logger.log(Level.SEVERE, "Could not load history file", ex);
         }
         try {
             pm.loadKeyring();
         } catch (Exception ex) {
-            logger.log(Level.WARNING, "Could not load keyring file", ex);
+            logger.log(Level.SEVERE, "Could not load keyring file", ex);
         }
 
         //initialize logging if set from Config
@@ -212,27 +197,24 @@ public class Main {
             LogSupport.getEsmskaLogger().setLevel(Level.ALL);
         }
         
-        //warn if other program instance is already running
+        //quit if other program instance is already running
         if (!pm.isFirstInstance()) {
-            logger.warning("Some other instance of the program is already running");
+            logger.warning("Esmska is already running. Quitting.");
             try {
                 SwingUtilities.invokeAndWait(new Runnable() {
                     @Override
                     public void run() {
-                        String runOption = l10n.getString("Main.run_anyway");
                         String quitOption = l10n.getString("Quit");
-                        String[] options = new String[]{runOption, quitOption};
-                        options = RuntimeUtils.sortDialogOptions(options);
-                        int result = JOptionPane.showOptionDialog(null, l10n.getString("Main.already_running"),
-                                null, JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null,
-                                options, quitOption);
-                        if (result != ArrayUtils.indexOf(options, runOption)) {
-                            System.exit(0);
-                        }
+                        String[] options = new String[]{quitOption};
+                        JOptionPane.showOptionDialog(null, l10n.getString("Main.already_running"),
+                            null, JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null,
+                            options, quitOption);
                     }
                 });
             } catch (Exception e) {
                 logger.log(Level.SEVERE, "Can't display error message", e);
+            } finally {
+                System.exit(15);
             }
         }
 
@@ -242,9 +224,9 @@ public class Main {
         final String dataVersion = config.getVersion();
         final String programVersion = Config.getLatestVersion();
         if (Config.compareProgramVersions(dataVersion, programVersion) > 0) {
-            logger.warning("Configuration files are newer (" + dataVersion +
-                    ") then current program version (" + programVersion + ")! " +
-                    "Data corruption may occur!");
+            logger.log(Level.WARNING,"Configuration files are newer ({0}) then " +
+                    "current program version ({1})! Data corruption may occur!", 
+                    new Object[]{dataVersion, programVersion});
             try {
                 SwingUtilities.invokeAndWait(new Runnable() {
                     @Override
@@ -276,11 +258,6 @@ public class Main {
                     CountryPrefix.getCountryPrefix(Locale.getDefault().getCountry()));
             //set suggested LaF for this platform
             config.setLookAndFeel(ThemeManager.suggestBestLAF());
-            //set update policy if run as java webstart
-            if (RuntimeUtils.isRunAsWebStart()) {
-                //run as webstart, disable updates checking
-                config.setCheckUpdatePolicy(Config.CheckUpdatePolicy.CHECK_NONE);
-            }
             //show first run wizard
             InitWizardDialog dialog = new InitWizardDialog(null, true);
             dialog.setVisible(true);
@@ -288,7 +265,11 @@ public class Main {
         
         //update from older versions
         if (!config.isFirstRun()) {
-            LegacyUpdater.update();
+            try {
+                LegacyUpdater.update();
+            } catch (Exception ex) {
+                logger.log(Level.SEVERE, "Updating to a newer version failed", ex);
+            }
         }
         
         //set L&F
@@ -315,8 +296,11 @@ public class Main {
 
         //do some changes for unstable version
         if (!Config.isStableVersion()) {
-            config.setCheckForUnstableUpdates(true);
+            config.setAnnounceUnstableUpdates(true);
         }
+        
+        // refresh UUID if needed
+        Statistics.refreshUUID();
         
         //start main frame
         EventQueue.invokeLater(new Runnable() {

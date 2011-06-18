@@ -1,22 +1,18 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package esmska.transfer;
 
-import esmska.data.Gateway;
+import esmska.data.CountryPrefix;
 import esmska.utils.L10N;
-import esmska.data.Links;
-import esmska.data.Gateways;
 import esmska.data.SMS;
+import esmska.data.Tuple;
+import esmska.utils.LogSupport;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.text.MessageFormat;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 /** Class containing methods, which can be called from gateway scripts.
@@ -24,69 +20,70 @@ import org.apache.commons.lang.StringUtils;
  * @author ripper
  */
 public class GatewayExecutor {
-    private static final ResourceBundle l10n = L10N.l10nBundle;
     
+    public static enum Problem {
+        /** Gateway script author provided his own message.
+         * Requires the message as a parameter (you can use HTML 3.2). */
+        CUSTOM_MESSAGE,
+        /** A fix for this gateway is being worked on.
+         * Requires URL for a webpage with more details as a parameter. */
+        FIX_IN_PROGRESS,
+        /** Gateway provided its own error message. 
+         * Requires gateway message as a parameter (you can use HTML 3.2). */
+        GATEWAY_MESSAGE,
+        /** This is used for internal Esmska purposes. Don't use it from
+         inside gateway scripts.
+         Requires the message as a parameter (you can use HTML 3.2). */
+        INTERNAL_MESSAGE,
+        /** The user has not waited long enough to send another message
+         * or message quota has been reached. */
+        LIMIT_REACHED,
+        /** The message text was too long. */
+        LONG_TEXT,
+        /** The user does not have sufficient credit. */
+        NO_CREDIT,
+        /** The sending failed but gateway hasn't provided any reason for it. */
+        NO_REASON,
+        /** The sender signature was missing. */
+        SIGNATURE_NEEDED,
+        /** Message that unknown error happened, maybe error in the script.
+        * Make sure you set this problem before making any other HTTP requests
+        * (logging out, etc), because the last web content will get logged
+        * automatically right after you set this problem. */
+        UNKNOWN,
+        /** This gateway is for some reason currently unusable.
+         * Requires URL for a webpage with more details as a parameter. */
+        UNUSABLE,
+        /** The login or password was wrong. */
+        WRONG_AUTH,
+        /** The security code was wrong. */
+        WRONG_CODE,
+        /** The recepient number was wrong. */
+        WRONG_NUMBER,
+        /** The sender signature was wrong. */
+        WRONG_SIGNATURE,
+    }
+    
+    private static final ResourceBundle l10n = L10N.l10nBundle;
     private static final Logger logger = Logger.getLogger(GatewayExecutor.class.getName());
-    /** Message that recepient number was wrong. */
-    public static final String ERROR_WRONG_NUMBER =
-            l10n.getString("GatewayExecutor.ERROR_WRONG_NUMBER");
-    /** Message that security code was wrong. */
-    public static final String ERROR_WRONG_CODE =
-            l10n.getString("GatewayExecutor.ERROR_WRONG_CODE");
-    /** Message that message text was too long. */
-    public static final String ERROR_LONG_TEXT =
-            l10n.getString("GatewayExecutor.ERROR_LONG_TEXT");
-    /** Message that sender signature was wrong. */
-    public static final String ERROR_WRONG_SIGNATURE =
-            l10n.getString("GatewayExecutor.ERROR_WRONG_SIGNATURE");
-    /** Message that sender signature was wrong. */
-    public static final String ERROR_SIGNATURE_NEEDED =
-            l10n.getString("GatewayExecutor.ERROR_SIGNATURE_NEEDED");
-    /** Message that login or password was wrong. */
-    public static String ERROR_WRONG_AUTH =
-            l10n.getString("GatewayExecutor.ERROR_WRONG_AUTH");
-    /** Message that user has not waited long enough to send another message
-     * or message quota has been reached. */
-    public static final String ERROR_LIMIT_REACHED =
-            l10n.getString("GatewayExecutor.ERROR_LIMIT_REACHED");
-    /** Message that user does not have sufficient credit. */
-    public static final String ERROR_NO_CREDIT =
-            l10n.getString("GatewayExecutor.ERROR_NO_CREDIT");
-    /** Message that sending failed but gateway hasn't provided any reason for it. */
-    public static final String ERROR_NO_REASON =
-            l10n.getString("GatewayExecutor.ERROR_NO_REASON");
-    /** Message preceding gateway provided error message. */
-    public static final String ERROR_GATEWAY_MESSAGE =
-            l10n.getString("GatewayExecutor.ERROR_GATEWAY_MESSAGE");
-    /** Message that unknown error happened, maybe error in the script. */
-    public static String ERROR_UNKNOWN =
-            l10n.getString("GatewayExecutor.ERROR_UNKNOWN");
-    public static String ERROR_FIX_IN_PROGRESS =
-            l10n.getString("GatewayExecutor.ERROR_FIX_IN_PROGRESS");
+    
     /** Message saying how many free SMS are remaining. */
     public static final String INFO_FREE_SMS_REMAINING = 
             l10n.getString("GatewayExecutor.INFO_FREE_SMS_REMAINING") + " ";
     /** Message saying how much credit is remaining. */
     public static final String INFO_CREDIT_REMAINING = 
             l10n.getString("GatewayExecutor.INFO_CREDIT_REMAINING") + " ";
-    /** Message used when gateway provides no info whether message was successfuly sent or not. */
+    /** Message used when gateway provides no info whether message was successfully sent or not. */
     public static final String INFO_STATUS_NOT_PROVIDED = 
             l10n.getString("GatewayExecutor.INFO_STATUS_NOT_PROVIDED");
     
     private GatewayConnector connector = new GatewayConnector();
-    private String errorMessage;
-    private String gatewayMessage;
     private String referer;
     private SMS sms;
+    private String lastTextContent;
 
     public GatewayExecutor(SMS sms) {
         this.sms = sms;
-        Gateway gateway = Gateways.getInstance().get(sms.getGateway());
-        if (gateway != null) {
-            ERROR_WRONG_AUTH = MessageFormat.format(ERROR_WRONG_AUTH, gateway.getWebsite());
-            ERROR_UNKNOWN = MessageFormat.format(ERROR_UNKNOWN, Links.RUN_UPDATER,
-                    gateway.getWebsite(), Links.ISSUES);
-        }
     }
 
     /** For description see {@link GatewayConnector#forgetCookie(
@@ -117,8 +114,11 @@ public class GatewayExecutor {
             }
 
             if (connector.isTextContent()) {
+                lastTextContent = connector.getTextContent();
                 return connector.getTextContent();
             } else {
+                // we don't log binary content
+                lastTextContent = null;
                 return connector.getBinaryContent();
             }
         } catch (IOException ex) {
@@ -153,8 +153,11 @@ public class GatewayExecutor {
             }
 
             if (connector.isTextContent()) {
+                lastTextContent = connector.getTextContent();
                 return connector.getTextContent();
             } else {
+                // we don't log binary content
+                lastTextContent = null;
                 return connector.getBinaryContent();
             }
         } catch (IOException ex) {
@@ -190,37 +193,46 @@ public class GatewayExecutor {
         return StringUtils.defaultString(sms.getImageCode());
     }
 
-    /** Error message displayed when sending was unsuccessful.
-     * You can use simple HTML tags (HTML 3.2).<br>
-     * <br>
-     * Some predefined messages take additional parameters:
-     * <ul>
-     * <li>ERROR_FIX_IN_PROGRESS: URL to reported bug</li>
-     * </ul>
-     * @param errorMessage error message, may be one of predefined
-     * @param params may be empty or null, mandatory for some predefined messages
+    /** Same as calling setProblem(problem, null). */
+    public void setProblem(Object problem) {
+        setProblem(problem, null);
+    }
+    
+    /** Problem displayed when sending was unsuccessful.
+     * @param problem problem from Problem enum
+     * @param param some problems require additional string parameter, see their description
      */
-    public void setErrorMessage(String errorMessage, String[] params) {
-        //process additional params
-        if (ERROR_FIX_IN_PROGRESS.equals(errorMessage)) {
-            if (params == null || params.length <= 0) {
-                throw new IllegalArgumentException("Missing additional parameters " +
-                        "for selected error message");
-            }
-            errorMessage = MessageFormat.format(errorMessage, params[0]);
+    public void setProblem(Object problem, String param) {
+        Problem prob = null;
+        if (problem instanceof String) {
+            prob = Problem.valueOf((String)problem);
+        } else {
+            prob = (Problem) problem;
         }
-        this.errorMessage = errorMessage;
+        //process additional params
+        Problem[] needParams = new Problem[] {
+            Problem.CUSTOM_MESSAGE,
+            Problem.FIX_IN_PROGRESS,
+            Problem.UNUSABLE,
+            Problem.GATEWAY_MESSAGE
+        };
+        if (ArrayUtils.contains(needParams, prob)) {
+            if (StringUtils.isEmpty(param)) {
+                throw new IllegalArgumentException("Missing additional parameter " +
+                    "for provided problem " + prob);
+            }
+        }
+        // log if UNKNOWN (bad content or crash)
+        if (prob == Problem.UNKNOWN) {
+            logCrash();
+        }
+        
+        sms.setProblem(new Tuple<Problem, String>(prob, param));
     }
 
-    /** Same as calling <code>setErrorMessage(String, null)</code>
-     */
-    public void setErrorMessage(String errorMessage) {
-        setErrorMessage(errorMessage, null);
-    }
-
-    /** Additional optional message from gateway that is shown after message sending. */
-    public void setGatewayMessage(String gatewayMessage) {
-        this.gatewayMessage = gatewayMessage;
+    /** Optional supplemental message from gateway that is shown after message sending. */
+    public void setSupplementalMessage(String supplMessage) {
+        sms.setSupplMsg(supplMessage);
     }
     
     /** Referer (HTTP 'Referer' header) used for all following requests.
@@ -233,27 +245,46 @@ public class GatewayExecutor {
     /** Pauses the execution for specified amount of time.
      * Nothing happens if the amount is negative. */
     public void sleep(long milliseconds) throws InterruptedException {
-        logger.fine("Sleeping for " + milliseconds + " ms...");
+        logger.log(Level.FINE, "Sleeping for {0} ms...", milliseconds);
         if (milliseconds <= 0) {
             return;
         }
         Thread.sleep(milliseconds);
     }
 
-    /** Error message displayed when sending was unsuccessful. */
-    String getErrorMessage() {
-        return errorMessage;
+    /** Extract country prefix from phone number.
+     * @param phoneNumber Phone number in fully international format. May be null or
+     * incomplete.
+     * @return Country prefix if valid one is found in the number.
+     * Empty string otherwise.
+     */
+    public String extractCountryPrefix(String phoneNumber) {
+        return StringUtils.defaultString(CountryPrefix.extractCountryPrefix(phoneNumber));
     }
-    
-    /** Additional optional message from gateway. */
-    String getGatewayMessage() {
-        return gatewayMessage;
-    }
-    
+
     /** Set preferred language to retrieve web content.
      * @param language two-letter language code as defined in ISO 639-1
      */
     void setPreferredLanguage(String language) {
         connector.setLanguage(language);
+    }
+
+    /** Log last webpage content preceding crash.
+     * Doesn't get logged twice if webpage debugging already enabled.
+     * @param content web page content, may be null
+     */
+    private void logCrash() {
+        if (lastTextContent == null) {
+            //nothing to log
+            return;
+        }
+        Level level = LogSupport.getEsmskaLogger().getLevel();
+        if (level.equals(Level.ALL)) {
+            //this content was already logged
+            return;
+        }
+        LogSupport.getEsmskaLogger().setLevel(Level.ALL);
+        logger.log(Level.FINEST, "#### WEB CONTENT START ####\n{0}\n#### WEB CONTENT END ####", lastTextContent);
+        LogSupport.getEsmskaLogger().setLevel(level);
     }
 }

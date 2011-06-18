@@ -1,12 +1,3 @@
-/*
- * SMSSender.java
- *
- * Created on 6. červenec 2007, 17:55
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
-
 package esmska.transfer;
 
 import esmska.data.Links;
@@ -20,8 +11,10 @@ import javax.swing.SwingWorker;
 
 import esmska.data.Queue;
 import esmska.data.SMS;
+import esmska.data.Tuple;
 import esmska.utils.L10N;
 import esmska.data.event.ValuedListener;
+import esmska.transfer.GatewayExecutor.Problem;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -36,7 +29,6 @@ public class SMSSender {
     private static final Logger logger = Logger.getLogger(SMSSender.class.getName());
     private static final ResourceBundle l10n = L10N.l10nBundle;
     private static final Queue queue = Queue.getInstance();
-    private static final String NO_REASON_ERROR = l10n.getString("SMSSender.NO_REASON_ERROR");
     private static final String SENDING_CRASHED_ERROR = 
             MessageFormat.format(l10n.getString("SMSSender.SENDING_CRASHED_ERROR"), Links.ISSUES);
     
@@ -120,7 +112,8 @@ public class SMSSender {
                 success = get();
             } catch (Throwable t) {
                 logger.log(Level.SEVERE, "Sending of SMS crashed", t);
-                sms.setErrMsg(SENDING_CRASHED_ERROR);
+                sms.setProblem(new Tuple<Problem, String>(
+                        Problem.INTERNAL_MESSAGE, SENDING_CRASHED_ERROR));
             }
             finishedSending(sms, success);
         }
@@ -129,13 +122,9 @@ public class SMSSender {
             boolean success = false;
             try {
                 GatewayInterpreter interpreter = new GatewayInterpreter();
+                sms.setProblem(null);
+                sms.setSupplMsg(null);
                 success = interpreter.sendMessage(sms);
-                sms.setGatewayMsg(interpreter.getGatewayMessage());
-                sms.setErrMsg(null);
-                if (!success) {
-                    sms.setErrMsg(interpreter.getErrorMessage() != null ?
-                        interpreter.getErrorMessage() : NO_REASON_ERROR);
-                }
             } catch (Exception ex) {
                 logger.log(Level.WARNING, "Error while sending sms", ex);
                 success = false;

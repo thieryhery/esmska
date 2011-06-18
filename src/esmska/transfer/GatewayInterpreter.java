@@ -1,17 +1,12 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package esmska.transfer;
 
-import esmska.data.Config;
 import esmska.data.Keyring;
 import esmska.data.Gateway;
 import esmska.data.Gateways;
 import esmska.data.SMS;
 import esmska.data.Tuple;
+import esmska.transfer.GatewayExecutor.Problem;
 import esmska.utils.L10N;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Arrays;
@@ -25,6 +20,7 @@ import java.util.logging.Logger;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 /** Class that takes care of parsing gateway script files for extracting
  * gateway info and sending messages.
@@ -37,7 +33,6 @@ public class GatewayInterpreter {
     private static final ResourceBundle l10n = L10N.l10nBundle;
     private static final ScriptEngineManager manager = new ScriptEngineManager();
     private static final Keyring keyring = Keyring.getInstance();
-    private static final Config config = Config.getInstance();
     private Map<GatewayVariable, String> variables;
     private GatewayExecutor executor;
     private ScriptEngine engine;
@@ -61,18 +56,19 @@ public class GatewayInterpreter {
      * @param sms sms to be sent
      * @return whether the message was sent successfully
      */
-    public boolean sendMessage(SMS sms) {
+    public boolean sendMessage(SMS sms) throws Exception {
         Gateway gateway = Gateways.getInstance().get(sms.getGateway());
-        this.variables = extractVariables(sms);
-
-        logger.fine("Sending SMS to: " + gateway);
+        logger.log(Level.FINE, "Sending SMS to: {0}", gateway);
+        
         init();
         executor = new GatewayExecutor(sms);
-        
         if (gateway == null) {
-            executor.setErrorMessage(l10n.getString("GatewayInterpreter.unknown_gateway"));
+            executor.setProblem(Problem.INTERNAL_MESSAGE, 
+                    l10n.getString("GatewayInterpreter.unknown_gateway"));
             return false;
         }
+
+        this.variables = extractVariables(sms, gateway);
         
         Reader reader = null;
         boolean sentOk = false;
@@ -89,15 +85,15 @@ public class GatewayInterpreter {
 
             //send the message
             sentOk = (Boolean) invocable.invokeFunction("send", new Object[0]);
-            logger.fine("SMS sent ok: " + sentOk);
-        } catch (Exception ex) {
+            logger.log(Level.FINE, "SMS sent ok: {0}", sentOk);
+        } catch (ScriptException ex) {
             logger.log(Level.SEVERE, "Error executing gateway script file " + gateway, ex);
-            executor.setErrorMessage(GatewayExecutor.ERROR_UNKNOWN);
+            executor.setProblem(Problem.UNKNOWN, null);
             return false;
         } finally {
             try {
                 reader.close();
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 logger.log(Level.SEVERE, "Error closing gateway script file " + gateway, ex);
             }
         }
@@ -106,21 +102,21 @@ public class GatewayInterpreter {
     }
 
     /** Extract variables from SMS to a map */
-    private static HashMap<GatewayVariable,String> extractVariables(SMS sms) {
+    private static HashMap<GatewayVariable,String> extractVariables(SMS sms, Gateway gateway) {
         HashMap<GatewayVariable,String> map = new HashMap<GatewayVariable, String>();
         map.put(GatewayVariable.NUMBER, sms.getNumber());
         map.put(GatewayVariable.MESSAGE, sms.getText());
         map.put(GatewayVariable.SENDERNAME, sms.getSenderName());
         map.put(GatewayVariable.SENDERNUMBER, sms.getSenderNumber());
-
+        
         Tuple<String, String> key = keyring.getKey(sms.getGateway());
         if (key != null) {
             map.put(GatewayVariable.LOGIN, key.get1());
             map.put(GatewayVariable.PASSWORD, key.get2());
         }
 
-        if (config.isDemandDeliveryReport()) {
-            map.put(GatewayVariable.DELIVERY_REPORT, "true");
+        if (gateway.getConfig().isReceipt()) {
+            map.put(GatewayVariable.RECEIPT, "true");
         }
 
         return map;
@@ -152,23 +148,4 @@ public class GatewayInterpreter {
         }
     }
 
-    /** Get the error message created when sending of the message failed. May be null.
-     * @throws IllegalStateException when called before sending any sms
-     */
-    public String getErrorMessage() {
-        if (executor == null) {
-            throw new IllegalStateException("Getting error message before even sending the very sms");
-        }
-        return executor.getErrorMessage();
-    }
-    
-    /** Get additional message from gateway. May be null.
-     * @throws IllegalStateException when called before sending any sms
-     */
-    public String getGatewayMessage() {
-        if (executor == null) {
-            throw new IllegalStateException("Getting gateway message before even sending the very sms");
-        }
-        return executor.getGatewayMessage();
-    }
 }

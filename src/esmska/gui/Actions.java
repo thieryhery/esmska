@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package esmska.gui;
 
 import esmska.Context;
@@ -20,12 +15,13 @@ import esmska.utils.ConfirmingFileChooser;
 import esmska.utils.L10N;
 import esmska.data.event.ValuedEvent;
 import esmska.data.event.ValuedListener;
-import esmska.update.UpdateChecker;
 import esmska.data.Links;
 import java.awt.Desktop;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URL;
@@ -41,6 +37,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.JTextComponent;
@@ -61,7 +58,6 @@ public class Actions {
     private static Action importAction;
     private static Action exportAction;
     private static Action logAction;
-    private static Action updateAction;
 
     /** Show about frame */
     public static Action getAboutAction() {
@@ -143,16 +139,6 @@ public class Actions {
         return new BrowseAction(url);
     }
 
-    /** Show the update dialog
-     * @param updateChecker update checker, may be null
-     */
-    public static Action getUpdateAction(UpdateChecker updateChecker) {
-        if (updateAction == null) {
-            updateAction = new UpdateAction(updateChecker);
-        }
-        return updateAction;
-    }
-
     /** Browse specific URL with a web browser */
     private static class BrowseAction extends AbstractAction {
         private final String url;
@@ -164,9 +150,7 @@ public class Actions {
         public void actionPerformed(ActionEvent e) {
             if (StringUtils.startsWith(url, "esmska://")) {
                 //internal program action link
-                if (Links.RUN_UPDATER.equals(url)) {
-                    getUpdateAction(null).actionPerformed(null);
-                } else if (Links.CONFIG_GATEWAYS.equals(url)) {
+                if (Links.CONFIG_GATEWAYS.equals(url)) {
                     ((ConfigAction)getConfigAction()).showTab(ConfigFrame.Tabs.GATEWAYS);
                 } else {
                     assert false : "Unknown internal action link: " + url;
@@ -485,6 +469,22 @@ public class Actions {
                     }
                 }
             });
+            // enable this only once the program is fully loaded
+            Context.addPropertyChangeListener(new PropertyChangeListener() {
+                @Override
+                public void propertyChange(PropertyChangeEvent evt) {
+                    if (!StringUtils.equals(evt.getPropertyName(), "everythingLoaded")) {
+                        return;
+                    }
+                    SwingUtilities.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateStatus();
+                        }
+                    });
+                }
+            });
+            updateStatus();
         }
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -513,37 +513,8 @@ public class Actions {
                 putValue(SELECTED_KEY, false);
             }
         }
-    }
-
-    /** Show the update dialog */
-    private static class UpdateAction extends AbstractAction {
-        private UpdateChecker updateChecker;
-        public UpdateAction(UpdateChecker updateChecker) {
-            this.updateChecker = updateChecker;
-            L10N.setLocalizedText(this, l10n.getString("CheckUpdates_"));
-            putValue(LARGE_ICON_KEY, Icons.get("updateManager-48.png"));
-            this.putValue(SHORT_DESCRIPTION,l10n.getString("CheckUpdatesTooltip"));
-        }
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            //pause the queue so no further messages are sent
-            Queue queue = Queue.getInstance();
-            if (!queue.isEmpty()) {
-                queue.setPaused(true);
-            }
-            //don't allow to send messages during update process
-            if (Context.mainFrame.getSMSSender().isRunning()) {
-                JOptionPane.showMessageDialog(Context.mainFrame,
-                    new JLabel(l10n.getString("Update.queueRunning")),
-                    null, JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            logger.fine("Showing Update dialog...");
-            UpdateDialog dialog = new UpdateDialog(Context.mainFrame, true, updateChecker);
-            dialog.setLocationRelativeTo(Context.mainFrame);
-            
-            dialog.setVisible(true);
+        private void updateStatus() {
+            this.setEnabled(Context.everythingLoaded());
         }
     }
 }

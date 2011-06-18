@@ -1,18 +1,8 @@
-/*
- * ActionEventSupport.java
- *
- * Created on 3. říjen 2007, 17:45
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
-
 package esmska.data.event;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.ListIterator;
 
 /** Support for firing ActionEvents in classes.
  *
@@ -36,20 +26,23 @@ public class ActionEventSupport {
     }
     
     /** Add new ActionListener */
-    public void addActionListener(ActionListener actionListener) {
+    public synchronized void addActionListener(ActionListener actionListener) {
         listeners.add(actionListener);
     }
     
     /** Remove existing ActionListener */
-    public void removeActionListener(ActionListener actionListener) {
+    public synchronized void removeActionListener(ActionListener actionListener) {
         listeners.remove(actionListener);
     }
 
     /** Fire new ActionEvent */
     public void fireActionPerformed(int id, String command) {
         ActionEvent event = new ActionEvent(source, id, command);
-        for (ListIterator<ActionListener> it = listeners.listIterator(listeners.size()); it.hasPrevious(); ) {
-            it.previous().actionPerformed(event);
+        // clone the list of the listeners to allow the original list to be modified
+        // while firing up events
+        ArrayList<ActionListener> list = new ArrayList<ActionListener>(listeners);
+        for (ActionListener listener : list) {
+            listener.actionPerformed(event);
         }
     }
     

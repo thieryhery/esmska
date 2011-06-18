@@ -1,11 +1,3 @@
-/*
- * ImportManager.java
- *
- * Created on 15. září 2007, 13:02
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
 package esmska.persistence;
 
 import com.csvreader.CsvReader;
@@ -14,12 +6,9 @@ import esmska.data.Config.GlobalConfig;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.security.GeneralSecurityException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import esmska.data.Contact;
 import esmska.data.SMS;
-import esmska.data.DefaultGateway;
 import esmska.data.Gateway;
 import esmska.data.Tuple;
 import esmska.update.VersionFile;
@@ -31,11 +20,13 @@ import java.io.Reader;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.text.DateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
@@ -48,6 +39,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -77,7 +71,7 @@ public class ImportManager {
     }
 
     /** Import sms queue from file */
-    public static ArrayList<SMS> importQueue(File file) throws IOException {
+    public static ArrayList<SMS> importQueue(File file) throws Exception {
         logger.finer("Importing queue from file: " + file.getAbsolutePath());
         ArrayList<SMS> queue = new ArrayList<SMS>();
         CsvReader reader = null;
@@ -86,16 +80,18 @@ public class ImportManager {
             reader = new CsvReader(file.getPath(), ',', Charset.forName("UTF-8"));
             reader.setUseComments(true);
             while (reader.readRecord()) {
-                String name = reader.get(0);
-                String number = reader.get(1);
-                String gateway = reader.get(2);
-                String text = reader.get(3);
-                String senderName = reader.get(4);
-                String senderNumber = reader.get(5);
+                try {
+                    String name = reader.get(0);
+                    String number = reader.get(1);
+                    String gateway = reader.get(2);
+                    String text = reader.get(3);
 
-                SMS sms = new SMS(number, text, gateway, name, senderNumber,
-                        senderName);
-                queue.add(sms);
+                    SMS sms = new SMS(number, text, gateway, name);
+                    queue.add(sms);
+                } catch (Exception e) {
+                    logger.severe("Invalid queue record: " + reader.getRawRecord());
+                    throw e;
+                }
             }
         } finally {
             if (reader != null) {
@@ -108,32 +104,36 @@ public class ImportManager {
     }
 
     /** Import sms history from file */
-    public static ArrayList<History.Record> importHistory(File file)
-            throws IOException, ParseException {
+    public static ArrayList<History.Record> importHistory(File file) throws Exception {
         logger.finer("Importing history from file: " + file.getAbsolutePath());
         ArrayList<History.Record> history = new ArrayList<History.Record>();
         CsvReader reader = null;
+        DateFormat df = DateFormat.getDateTimeInstance(DateFormat.LONG,
+                            DateFormat.LONG, Locale.ROOT);
         
         try {
             reader = new CsvReader(file.getPath(), ',', Charset.forName("UTF-8"));
             reader.setUseComments(true);
 
             while (reader.readRecord()) {
-                String dateString = reader.get(0);
-                String name = reader.get(1);
-                String number = reader.get(2);
-                String gateway = reader.get(3);
-                String text = reader.get(4);
-                String senderName = reader.get(5);
-                String senderNumber = reader.get(6);
+                try {
+                    String dateString = reader.get(0);
+                    String name = reader.get(1);
+                    String number = reader.get(2);
+                    String gateway = reader.get(3);
+                    String text = reader.get(4);
+                    String senderName = reader.get(5);
+                    String senderNumber = reader.get(6);
 
-                DateFormat df = DateFormat.getDateTimeInstance(DateFormat.LONG,
-                        DateFormat.LONG, Locale.ROOT);
-                Date date = df.parse(dateString);
+                    Date date = df.parse(dateString);
 
-                History.Record record = new History.Record(number, text, gateway,
-                        name, senderNumber, senderName, date);
-                history.add(record);
+                    History.Record record = new History.Record(number, text, gateway,
+                            name, senderNumber, senderName, date);
+                    history.add(record);
+                } catch (Exception e) {
+                    logger.severe("Invalid history record: " + reader.getRawRecord());
+                    throw e;
+                }
             }
         } finally {
             if (reader != null) {
@@ -170,15 +170,16 @@ public class ImportManager {
             }
         }
 
-        return importGateways(gatewayURLs);
+        return importGateways(gatewayURLs, false);
     }
 
     /** Import all gateways from directory
      * @param directory directory where to look for gateways
+     * @param deleteOnFail whether to delete gateway files that fail to be loaded
      * @throws IOException When there is problem accessing gateway directory or files
      * @throws IntrospectionException When current JRE does not support JavaScript execution
      */
-    public static TreeSet<Gateway> importGateways(File directory) throws
+    public static TreeSet<Gateway> importGateways(File directory, boolean deleteOnFail) throws
             IOException, IntrospectionException {
         logger.finer("Importing gateways from directory: " + directory.getAbsolutePath());
         if (!directory.canRead() || !directory.isDirectory()) {
@@ -197,28 +198,28 @@ public class ImportManager {
             gatewayURLs.add(f.toURI().toURL());
         }
 
-        return importGateways(gatewayURLs);
+        return importGateways(gatewayURLs, deleteOnFail);
     }
 
     /** Get set of gateways from set of gateway URLs
      * @param gatewayURLs set of gateway URLs (file or jar URLs)
+     * @param deleteOnFail whether to delete gateway files that fail to be loaded
      * @return set of gateways
      * @throws java.beans.IntrospectionException When current JRE does not support JavaScript execution
      */
-    private static TreeSet<Gateway> importGateways(Set<URL> gatewayURLs) throws
+    private static TreeSet<Gateway> importGateways(Set<URL> gatewayURLs, boolean deleteOnFail) throws
             IntrospectionException {
-        logger.finer("Importing gateways from set of " + gatewayURLs.size() + " URLs");
+        logger.log(Level.FINER, "Importing gateways from set of {0} URLs", gatewayURLs.size());
         TreeSet<Gateway> gateways = new TreeSet<Gateway>();
 
         for (URL gatewayURL : gatewayURLs) {
             try {
-                DefaultGateway gateway = new DefaultGateway(gatewayURL);
+                Gateway gateway = new Gateway(gatewayURL);
                 //check that this gateway can be used in this program
                 if (Config.compareProgramVersions(Config.getLatestVersion(),
                         gateway.getMinProgramVersion()) < 0) {
-                    logger.info("Gateway " + gateway.getName() +
-                            " requires program of version at least " +
-                            gateway.getMinProgramVersion() + ", skipping.");
+                    logger.log(Level.INFO, "Gateway {0} requires program of version at least {1}, skipping.",
+                            new Object[]{gateway.getName(), gateway.getMinProgramVersion()});
                     continue;
                 }
                 //check that some older version of the same gateway is not
@@ -242,25 +243,63 @@ public class ImportManager {
             } catch (Exception ex) {
                 logger.log(Level.WARNING, "Ivalid gateway resource: " +
                         gatewayURL.toExternalForm(), ex);
+                if (deleteOnFail) {
+                    try {
+                        logger.log(Level.FINE, "Deleting invalid gateway file: {0}", gatewayURL);
+                        File gwFile = new File(gatewayURL.toURI());
+                        gwFile.delete();
+                    } catch (Exception exc) {
+                        logger.log(Level.WARNING, "Can't delete gateway: " + gatewayURL, exc);
+                    }
+                }
             }
         }
 
-        logger.finer("Imported " + gateways.size() + " gateways");
+        logger.log(Level.FINER, "Imported {0} gateways", gateways.size());
         return gateways;
+    }
+
+    /** Get set of deprecated gateways from jar resource
+     * @param resource jar absolute resource path with xml file
+     * @see #importDeprecatedGateways(java.net.URL)
+     */
+    public static HashSet<DeprecatedGateway> importDeprecatedGateways(String resource) throws
+            IOException, SAXException {
+        logger.finer("Importing deprecated gateways from resource: " + resource);
+        URL deprecFile = ImportManager.class.getResource(resource);
+        if (deprecFile == null || //resource doesn't exist
+                !deprecFile.getProtocol().equals("jar")) { //resource not packed in jar
+            throw new IOException("Could not find jar gateway resource: " + resource);
+        }
+
+        return importDeprecatedGateways(deprecFile);
     }
 
     /** Get set of deprecated gateways from a file
      * @param file xml containing description of deprecated gateways
-     * @return set of deprecated gateways
-     * @throws IOException problem accessing the file
-     * @throws SAXException problem parsing the file
+     * @see #importDeprecatedGateways(java.net.URL) 
      */
     public static HashSet<DeprecatedGateway> importDeprecatedGateways(File file)
             throws IOException, SAXException {
         logger.finer("Importing deprecated gateways from file: " + file.getAbsolutePath());
+
         if (!file.canRead() || !file.isFile()) {
             throw new IOException("Invalid deprecated gateway file: " + file.getAbsolutePath());
         }
+        
+        return importDeprecatedGateways(file.toURI().toURL());
+    }
+
+    /** Get set of deprecated gateways from URL
+     * @param url url to xml file (file or jar url) containing description
+     * of deprecated gateways
+     * @return set of deprecated gateways
+     * @throws IOException problem accessing jar resource
+     * @throws SAXException problem parsing the file
+     */
+    public static HashSet<DeprecatedGateway> importDeprecatedGateways(URL url) throws
+            IOException, SAXException {
+        logger.finer("Importing deprecated gateways from URL: " + url);
 
         HashSet<DeprecatedGateway> deprecated = new HashSet<DeprecatedGateway>();
 
@@ -270,7 +309,7 @@ public class ImportManager {
             XPathFactory xpf = XPathFactory.newInstance();
             XPath xpath = xpf.newXPath();
 
-            Document doc = db.parse(file);
+            Document doc = db.parse(url.openStream());
 
             NodeList gateways = doc.getElementsByTagName(VersionFile.TAG_DEPRECATED_GATEWAY);
             for (int i = 0; i < gateways.getLength(); i++) {
@@ -293,12 +332,9 @@ public class ImportManager {
 
     /** Import keyring data from file.
      * @param file File to import from.
-     * @throws java.io.IOException When some error occur during file processing.
-     * @throws java.security.GeneralSecurityException When there is problem with
-     *         key decryption.
+     * @throws Exception When some error occur during file processing.
      */
-    public static void importKeyring(File file)
-            throws IOException, GeneralSecurityException {
+    public static void importKeyring(File file) throws Exception {
         logger.finer("Importing keyring from file: " + file.getAbsolutePath());
         Keyring keyring = Keyring.getInstance();
         CsvReader reader = null;
@@ -307,12 +343,17 @@ public class ImportManager {
             reader = new CsvReader(file.getPath(), ',', Charset.forName("UTF-8"));
             reader.setUseComments(true);
             while (reader.readRecord()) {
-                String gatewayName = reader.get(0);
-                String login = reader.get(1);
-                String password = Keyring.decrypt(reader.get(2));
+                try {
+                    String gatewayName = reader.get(0);
+                    String login = reader.get(1);
+                    String password = Keyring.decrypt(reader.get(2));
 
-                Tuple<String, String> key = new Tuple<String, String>(login, password);
-                keyring.putKey(gatewayName, key);
+                    Tuple<String, String> key = new Tuple<String, String>(login, password);
+                    keyring.putKey(gatewayName, key);
+                } catch (Exception e) {
+                    logger.severe("Invalid keyring record: " + reader.getRawRecord());
+                    throw e;
+                }
             }
         } finally {
             if (reader != null) {
@@ -335,17 +376,14 @@ public class ImportManager {
             Properties props = new Properties();
             props.load(reader);
 
-            //checkUpdatePolicy
-            String prop = props.getProperty("checkUpdatePolicy");
-            if ("none".equals(prop)) {
-                globalConfig.setCheckUpdatePolicy(Config.CheckUpdatePolicy.CHECK_NONE);
-            } else if ("program".equals(prop)) {
-                globalConfig.setCheckUpdatePolicy(Config.CheckUpdatePolicy.CHECK_PROGRAM);
-            } else if ("gateways".equals(prop)) {
-                globalConfig.setCheckUpdatePolicy(Config.CheckUpdatePolicy.CHECK_GATEWAYS);
-            } else if ("all".equals(prop)) {
-                globalConfig.setCheckUpdatePolicy(Config.CheckUpdatePolicy.CHECK_ALL);
+            //checkProgramUpdates
+            String prop = props.getProperty("announceProgramUpdates");
+            if ("yes".equals(prop)) {
+                globalConfig.setAnnounceProgramUpdates(true);
+            } else if ("no".equals(prop)) {
+                globalConfig.setAnnounceProgramUpdates(false);
             }
+            // else config default will aply
 
         } finally {
             if (reader != null) {
@@ -354,5 +392,61 @@ public class ImportManager {
         }
 
         logger.finer("Imported global configuration");
+    }
+
+    /** Import all gateway properties from file. */
+    public static void importGatewayProperties(File file) throws IOException {
+        logger.log(Level.FINER, "Importing gateway properties from file: {0}", file.getAbsolutePath());
+
+        String jsonString = FileUtils.readFileToString(file, "UTF-8");
+        JSONObject obj = JSONObject.fromObject(jsonString);
+
+        // default signature
+        JSONObject jsonDefSig = (JSONObject) obj.get("default signature");
+        if (jsonDefSig != null) {
+            try {
+                Signature defSig = (Signature) JSONObject.toBean(jsonDefSig, Signature.class);
+                Signature.DEFAULT.setUserName(defSig.getUserName());
+                Signature.DEFAULT.setUserNumber(defSig.getUserNumber());
+            } catch (Exception ex) {
+                logger.log(Level.SEVERE, "Could not load default signature", ex);
+            }
+        }
+
+        // custom signatures
+        JSONArray jsonSignatures = (JSONArray) obj.get("signatures");
+        if (jsonSignatures != null) {
+            try {
+                for (int i = 0; i < jsonSignatures.size(); i++) {
+                    JSONObject sigObj = jsonSignatures.getJSONObject(i);
+                    Signature signature = (Signature) JSONObject.toBean(sigObj, Signature.class);
+                    if (!Signatures.getInstance().add(signature)) {
+                        logger.log(Level.WARNING, "Couldn''t add signature: {0}", signature.getProfileName());
+                    }
+                }
+            } catch (Exception ex) {
+                logger.log(Level.SEVERE, "Could not load user signatures", ex);
+            }
+        }
+
+        // GatewayConfig objects
+        JSONObject jsonGwConfigs = (JSONObject) obj.get("configs");
+        if (jsonGwConfigs != null) {
+            try {
+                for (Iterator it = jsonGwConfigs.keys(); it.hasNext(); ) {
+                    String gwName = (String) it.next();
+                    GatewayConfig gwConfig = (GatewayConfig) JSONObject.toBean(jsonGwConfigs.getJSONObject(gwName), GatewayConfig.class);
+
+                    Gateway gateway = Gateways.getInstance().get(gwName);
+                    if (gateway != null) {
+                        gateway.setConfig(gwConfig);
+                    }
+                }
+            } catch (Exception ex) {
+                logger.log(Level.SEVERE, "Could not load gateway configs", ex);
+            }
+        }
+
+        logger.finer("Imported gateway properties");
     }
 }

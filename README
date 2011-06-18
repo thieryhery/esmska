@@ -9,7 +9,7 @@ Documentation . . . . . . . http://code.google.com/p/esmska/w/list
 Issues. . . . . . . . . . . http://code.google.com/p/esmska/wiki/Issues
 Forums. . . . . . . . . . . https://answers.launchpad.net/esmska
 Translations. . . . . . . . https://translations.launchpad.net/esmska
-Source code . . . . . . . . http://code.google.com/p/esmska/source/checkout
+Source code . . . . . . . . https://github.com/kparal/esmska
 
 Program files:
 README          - This file.
@@ -25,7 +25,7 @@ resources/      - Different resource files.
 scripts/        - Various scripts for managing building process.
 src/            - Program sources.
 
-Program license can be found in include/license/.
+Program license is GNU AGPL v3+, see include/license/ for more details.
 
 Project root directory can be opened by NetBeans IDE as its project.
 
@@ -33,13 +33,16 @@ Project root directory can be opened by NetBeans IDE as its project.
 Getting program
 ===============
 
-You can checkout any version of Esmska from its subversion repository by using:
+Check out Esmska repository:
 
- $ hg clone -r vVERSION https://esmska.googlecode.com/hg/ esmska-VERSION
+ $ git clone git://github.com/kparal/esmska.git
 
-You can also checkout the current development branch by using:
+By default you'll see the main development branch ('master'). You can switch
+to any other branch or tagged version by using:
 
- $ hg clone https://esmska.googlecode.com/hg/ esmska
+ $ git branch               # lists all branches
+ $ git tag                  # lists all tags
+ $ git checkout BRANCH|TAG
 
 
 Compilation requirements
@@ -48,10 +51,10 @@ Compilation requirements
  * Java 6 JDK (Sun tested)
  * Ant
    o in Ubuntu packaged as 'ant'
- 
+
 Provided by lib/ directory:
  * CopyLibs
-   o included in NetBeans IDE 6.1
+   o included in NetBeans IDE 7.0
  * Mac UI
    o included in Apple Java
    o optional: see compiling section for information how to build without Mac OS
@@ -63,10 +66,12 @@ Runtime requirements
 ====================
 
  * Java 6 JRE (Sun and OpenJDK tested)
- 
+
 Provided by lib/ directory:
  * Android vCard 1.2
    o http://code.google.com/p/android-vcard/
+ * Apache Commons BeanUtils 1.8.3
+   o http://commons.apache.org/beanutils/
  * Apache Commons CLI 1.2
    o http://commons.apache.org/cli/
  * Apache Commons Codec 1.3
@@ -77,12 +82,14 @@ Provided by lib/ directory:
    o http://hc.apache.org/httpclient-3.x/
  * Apache Commons IO 1.4
    o http://commons.apache.org/io/
- * Apache Commons Lang 2.4
+ * Apache Commons Lang 2.6
    o http://commons.apache.org/lang/
  * Apache Commons Logging 1.1.1
    o http://commons.apache.org/logging/
  * Beans Binding 1.2.1
    o https://beansbinding.dev.java.net/
+ * EZMorph 1.0.6
+   o http://ezmorph.sourceforge.net/
  * JavaCSV 2.0
    o https://sourceforge.net/projects/javacsv/
  * Javascript Engine
@@ -90,6 +97,8 @@ Provided by lib/ directory:
    o https://scripting.dev.java.net/
  * JGoodies Looks 2.1.4
    o http://www.jgoodies.com/freeware/looks/
+ * JSON-lib 2.4-jdk15
+   o http://json-lib.sourceforge.net/
  * Mozilla Rhino 1.7R1
    o http://www.mozilla.org/rhino/
  * OpenIDE libraries:
@@ -118,7 +127,7 @@ Compiling program
 In sources root directory (where build.xml is located) run this command:
 
  $ ant clean jar
- 
+
 If you want to build the program without Mac OS support (for example Linux
 package maintainers not willing to use Apple library), use command:
 
@@ -126,7 +135,7 @@ package maintainers not willing to use Apple library), use command:
 
 All the sources should be compiled in the build/ directory. In the dist/
 directory the resulting esmska.jar should be created, together with all needed
-libraries, available gateways and some additional files copied from include/ 
+libraries, available gateways and some additional files copied from include/
 directory.
 
 
@@ -136,7 +145,7 @@ Running program
 After compiling you can run Esmska by command:
 
  $ ./dist/esmska.sh
- 
+
 or
 
  $ ant run
@@ -150,17 +159,17 @@ Packaging program
 You can run command:
 
  $ ./scripts/create-package NAME
- 
+
 to obtain binary program packages inside the program root directory.
 
 When creating custom packages it may be good to note that the only important
-files for the program are esmska.jar, esmska.conf, lib/ and gateways/ 
+files for the program are esmska.jar, esmska.conf, lib/ and gateways/
 directory. All other files are intended only for the end-user and the program
 does not use them.
 
 Package maintainer should be interested in resources/ directory. It contains
 many files useful for making packages. Especially an always up-to-date
-esmska.desktop file should be used, because it contains localized menu item 
+esmska.desktop file should be used, because it contains localized menu item
 translations.
 
 You should also see the esmska.conf file, which is a system-wide configuration

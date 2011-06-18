@@ -1,9 +1,3 @@
-/*
- * MainFrame.java
- *
- * Created on 6. červenec 2007, 15:37
- */
-
 package esmska.gui;
 
 import esmska.Context;
@@ -16,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
+import java.beans.PropertyChangeEvent;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -53,11 +48,10 @@ import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
 
 import esmska.update.UpdateChecker;
 import esmska.data.Config;
-import esmska.data.Config.CheckUpdatePolicy;
+import esmska.data.Gateways;
 import esmska.data.History;
 import esmska.data.Icons;
 import esmska.data.Log;
-import esmska.data.Gateways;
 import esmska.data.Queue;
 import esmska.data.SMS;
 import esmska.integration.ActionBean;
@@ -68,6 +62,8 @@ import esmska.data.event.ValuedListener;
 import esmska.data.Links;
 import esmska.data.event.ActionEventSupport;
 import esmska.transfer.ImageCodeManager;
+import esmska.update.Statistics;
+import esmska.update.UpdateInstaller;
 import esmska.utils.MiscUtils;
 import esmska.utils.RuntimeUtils;
 import java.awt.Image;
@@ -75,11 +71,16 @@ import java.awt.SplashScreen;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.beans.Beans;
+import java.beans.IntrospectionException;
+import java.beans.PropertyChangeListener;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openide.awt.Mnemonics;
@@ -107,7 +108,7 @@ public class MainFrame extends javax.swing.JFrame {
     private static final Queue queue = Queue.getInstance();
     /** shutdown handler thread */
     private Thread shutdownThread = new ShutdownThread();
-    private UpdateChecker updateChecker = new UpdateChecker();
+    private UpdateChecker updateChecker = UpdateChecker.getInstance();
 
     /**
      * Creates new form MainFrame
@@ -189,14 +190,6 @@ public class MainFrame extends javax.swing.JFrame {
         queue.addValuedListener(new QueueListener());
         ImageCodeManager.setResolver(new GUIImageCodeResolver());
         
-        //check for valid gateways
-        if (Gateways.getInstance().size() <= 0 && !Beans.isDesignTime()) {
-            logger.warning("No usable gateways found");
-            JOptionPane.showMessageDialog(this,
-                    new JLabel(l10n.getString("MainFrame.no_gateways")),
-                    null, JOptionPane.ERROR_MESSAGE);
-        }
-        
         //use bindings
         Binding bind = Bindings.createAutoBinding(UpdateStrategy.READ, config, 
                 BeanProperty.create("toolbarVisible"), toolBar, BeanProperty.create("visible"));
@@ -206,16 +199,9 @@ public class MainFrame extends javax.swing.JFrame {
         bindGroup.addBinding(bind2);
         bindGroup.bind();
         
-        //check for updates
-        if (config.getCheckUpdatePolicy() != CheckUpdatePolicy.CHECK_NONE &&
-                !RuntimeUtils.isRunAsWebStart()) {
-            updateChecker.addActionListener(new UpdateListener());
-            updateChecker.checkForUpdates();
-        }
-
-        //only if really running, NetBeans has a bug to execute this in design mode
+        //add shutdown handler, when program is closed externally (logout, SIGTERM, etc)
+        //only if really running, not in design mode
         if (!Beans.isDesignTime()) {
-            //add shutdown handler, when program is closed externally (logout, SIGTERM, etc)
             Runtime.getRuntime().addShutdownHook(shutdownThread);
         }
 
@@ -237,6 +223,92 @@ public class MainFrame extends javax.swing.JFrame {
         };
         smsPanel.addActionListener(verticalSplitListener);
         queuePanel.addActionListener(verticalSplitListener);
+        
+        // wait for asynchronous user data loading and then finalize everything
+        final AtomicBoolean calledEverythingLoaded = new AtomicBoolean();
+        Context.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (!StringUtils.equals(evt.getPropertyName(), "everythingLoaded")) {
+                    return;
+                }
+                if (!Context.everythingLoaded()) {
+                    return;
+                }
+                // this may come from non-EDT thread
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (calledEverythingLoaded.compareAndSet(false, true)) {
+                            everythingLoaded();
+                        }
+                    }
+                });
+                Context.removePropertyChangeListener(this);
+            }
+        });
+        // the data could have been loaded before setting the listener, check it
+        if (Context.everythingLoaded() && calledEverythingLoaded.compareAndSet(false, true)) {
+            everythingLoaded();
+        }
+    }
+    
+    /** Performs last operations after all user data has been loaded. */
+    private void everythingLoaded() {
+        //check for valid gateways
+        if (Gateways.getInstance().size() <= 0) {
+            logger.warning("No usable gateways found");
+            JOptionPane.showMessageDialog(this,
+                    new JLabel(l10n.getString("MainFrame.no_gateways")),
+                    null, JOptionPane.ERROR_MESSAGE);
+        }
+        
+        // send statistics
+        Statistics.sendUsageInfo();
+        
+        // check for updates
+        updateChecker.addActionListener(new UpdateListener());
+        updateChecker.checkForUpdates();
+    }
+    
+    /** Start loading gatewates asynchronously */
+    private void loadGatewaysAsync() {
+        logger.fine("Loading gateways asynchronously...");
+        Thread loadGwsThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // load gateways
+                try {
+                    Context.persistenceManager.loadGateways();
+                } catch (IntrospectionException ex) { //it seems there is no JavaScript support
+                    logger.log(Level.SEVERE, "Current JRE doesn't support JavaScript execution", ex);
+                    try {
+                        SwingUtilities.invokeAndWait(new Runnable() {
+                            @Override
+                            public void run() {
+                                JOptionPane.showMessageDialog(null, l10n.getString("Main.no_javascript"),
+                                        null, JOptionPane.ERROR_MESSAGE);
+                            }
+                        });
+                    } catch (Exception e) {
+                        logger.log(Level.SEVERE, "Can't display error message", e);
+                    }
+                    System.exit(2);
+                } catch (Exception ex) {
+                    logger.log(Level.SEVERE, "Could not load gateways", ex);
+                }
+                // load gateway properties
+                try {
+                    Context.persistenceManager.loadGatewayProperties();
+                } catch (Exception ex) {
+                    logger.log(Level.SEVERE, "Could not load gateway properties file", ex);
+                }
+                // announce
+                Context.setGatewaysLoaded(true);
+            }
+        });
+        loadGwsThread.setDaemon(true);
+        loadGwsThread.start();
     }
     
     /** Create an instance of MainFrame. Should be called only for the first
@@ -266,6 +338,11 @@ public class MainFrame extends javax.swing.JFrame {
             //show the form
             this.setVisible(true);
         }
+        
+        // after all is set, load gateways asynchronously
+        // we delayed it to this point, because even running it in a background
+        // thread slows the startup of the main window
+        loadGatewaysAsync();
     }
 
     /** Display random tip from the collection of tips */
@@ -370,7 +447,6 @@ public class MainFrame extends javax.swing.JFrame {
         toolsMenu = new JMenu();
         historyMenuItem = new JMenuItem();
         logMenuItem = new JMenuItem();
-        updateMenuItem = new JMenuItem();
         jSeparator4 = new JSeparator();
         importMenuItem = new JMenuItem();
         exportMenuItem = new JMenuItem();
@@ -514,12 +590,6 @@ public class MainFrame extends javax.swing.JFrame {
 
         logMenuItem.setAction(Actions.getLogAction());
         toolsMenu.add(logMenuItem);
-
-        updateMenuItem.setAction(Actions.getUpdateAction(updateChecker));
-        if (RuntimeUtils.isRunAsWebStart()) {
-            updateMenuItem.setVisible(false);
-        }
-        toolsMenu.add(updateMenuItem);
         toolsMenu.add(jSeparator4);
 
         importMenuItem.setAction(Actions.getImportAction());
@@ -630,6 +700,7 @@ public class MainFrame extends javax.swing.JFrame {
             saveOk = saveQueue() && saveOk;
             saveOk = saveHistory() && saveOk;
             saveOk = saveKeyring() && saveOk;
+            saveOk = saveGatewayProperties() && saveOk;
             return saveOk;
         } catch (Throwable t) {
             logger.log(Level.SEVERE, "Serious error during saving user data", t);
@@ -667,19 +738,17 @@ public class MainFrame extends javax.swing.JFrame {
     private void loadConfig() {
         logger.finer("Initializing according to config...");
         //set frame layout
-        if (!config.isForgetLayout()) {
-            Dimension mainDimension = config.getMainDimension();
-            Integer horizontalSplitPaneLocation = config.getHorizontalSplitPaneLocation();
-            Integer verticalSplitPaneLocation = config.getVerticalSplitPaneLocation();
-            if (mainDimension != null) {
-                this.setSize(mainDimension);
-            }
-            if (horizontalSplitPaneLocation != null) {
-                horizontalSplitPane.setDividerLocation(horizontalSplitPaneLocation);
-            }
-            if (verticalSplitPaneLocation != null) {
-                verticalSplitPane.setDividerLocation(verticalSplitPaneLocation);
-            }
+        Dimension mainDimension = config.getMainDimension();
+        Integer horizontalSplitPaneLocation = config.getHorizontalSplitPaneLocation();
+        Integer verticalSplitPaneLocation = config.getVerticalSplitPaneLocation();
+        if (mainDimension != null) {
+            this.setSize(mainDimension);
+        }
+        if (horizontalSplitPaneLocation != null) {
+            horizontalSplitPane.setDividerLocation(horizontalSplitPaneLocation);
+        }
+        if (verticalSplitPaneLocation != null) {
+            verticalSplitPane.setDividerLocation(verticalSplitPaneLocation);
         }
         
         //set window centered
@@ -767,6 +836,26 @@ public class MainFrame extends javax.swing.JFrame {
         }
     }
 
+    /** Save gateway properties.
+     * Skips saving if the gateways properties wasn't yet already loaded (they
+     * are loaded asynchronously), then there is nothing to save.
+     * @return true if saved ok or not even yet loaded; false otherwise
+     */
+    private boolean saveGatewayProperties() {
+        if (!Context.gatewaysLoaded()) {
+            logger.log(Level.FINE, "Not saving gateway properties because they " +
+                    "were not yet even loaded.");
+            return true;
+        }
+        try {
+            Context.persistenceManager.saveGatewayProperties();
+            return true;
+        } catch (Exception ex) {
+            logger.log(Level.WARNING, "Could not save gateway properties", ex);
+            return false;
+        }
+    }
+
     /** Listen for changes in the queue */
     private class QueueListener implements ValuedListener<Queue.Events, SMS> {
         @Override
@@ -798,22 +887,22 @@ public class MainFrame extends javax.swing.JFrame {
             finish(sms);
         }
         private void smsFailed(SMS sms) {
-            logger.log(Level.INFO, "Message could not be sent: {0}\nError message: {1}",
-                    new Object[]{sms, sms.getErrMsg()});
+            logger.log(Level.INFO, "Message could not be sent: {0}\nProblem: {1}",
+                    new Object[]{sms, sms.getProblem()});
             log.addRecord(new Log.Record(MessageFormat.format(l10n.getString("MainFrame.sms_failed"), sms.getRecipient()),
                     null, Icons.STATUS_WARNING));
 
             //show the dialog
             logger.fine("Showing reason why SMS sending failed...");
-            GatewayMessageDialog gatewayMessageDialog = GatewayMessageDialog.getInstance();
-            gatewayMessageDialog.addErrorMsg(sms);
+            GatewayMessageFrame gatewayMessageFrame = GatewayMessageFrame.getInstance();
+            gatewayMessageFrame.addErrorMsg(sms);
 
             finish(sms);
         }
         private void finish(SMS sms) {
             //show gateway message if present
-            if (StringUtils.isNotEmpty(sms.getGatewayMsg())) {
-                log.addRecord(new Log.Record(sms.getGateway() + ": " + sms.getGatewayMsg(),
+            if (StringUtils.isNotEmpty(sms.getSupplMsg())) {
+                log.addRecord(new Log.Record(sms.getGateway() + ": " + sms.getSupplMsg(),
                         null, Icons.STATUS_MESSAGE));
             }
             //disable task indicator
@@ -876,62 +965,51 @@ public class MainFrame extends javax.swing.JFrame {
     private class UpdateListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            CheckUpdatePolicy policy = config.getCheckUpdatePolicy();
             int event = e.getID();
-
-            //if many updates found and should check only for some of them, announce
-            //only the requested
-            if (event == UpdateChecker.ACTION_PROGRAM_AND_GATEWAY_UPDATE_AVAILABLE) {
-                if (policy == CheckUpdatePolicy.CHECK_PROGRAM) {
-                    event = UpdateChecker.ACTION_PROGRAM_UPDATE_AVAILABLE;
-                } else if (policy == CheckUpdatePolicy.CHECK_GATEWAYS) {
-                    event = UpdateChecker.ACTION_GATEWAY_UPDATE_AVAILABLE;
-                }
-            }
-
+            
             switch (event) {
                 case UpdateChecker.ACTION_PROGRAM_UPDATE_AVAILABLE:
-                    if (policy != CheckUpdatePolicy.CHECK_ALL &&
-                            policy != CheckUpdatePolicy.CHECK_PROGRAM) {
-                        //user doesn't want to know
-                        break;
-                    }
-                    String message = MessageFormat.format(l10n.getString("MainFrame.new_program_version"),
-                            updateChecker.getLatestProgramVersion());
-                    log.addRecord(new Log.Record(MiscUtils.stripHtml(message), null, Icons.STATUS_UPDATE_IMPORTANT));
-                    statusPanel.setStatusMessage(message, null, Icons.STATUS_UPDATE_IMPORTANT, true);
-                    //on click open program homepage in browser
-                    statusPanel.installClickHandler(new Runnable() {
-                        @Override
-                        public void run() {
-                            Action browseAction = Actions.getBrowseAction(Links.DOWNLOAD);
-                            browseAction.actionPerformed(null);
-                        }
-                    }, l10n.getString("Update.browseDownloads"));
+                    announceProgram();
                     break;
                 case UpdateChecker.ACTION_GATEWAY_UPDATE_AVAILABLE:
-                    if (policy != CheckUpdatePolicy.CHECK_ALL &&
-                            policy != CheckUpdatePolicy.CHECK_GATEWAYS) {
-                        //user doesn't want to know
-                        break;
-                    }
-                    //otherwise do same as for program and gateway update
+                    updateGateways();
+                    break;
                 case UpdateChecker.ACTION_PROGRAM_AND_GATEWAY_UPDATE_AVAILABLE:
-                    message = l10n.getString("MainFrame.newGatewayUpdate");
-                    log.addRecord(new Log.Record(MiscUtils.stripHtml(message), null, Icons.STATUS_UPDATE));
-                    statusPanel.setStatusMessage(message, null, Icons.STATUS_UPDATE, true);
-                    //on click open update dialog
-                    statusPanel.installClickHandler(new Runnable() {
-                        @Override
-                        public void run() {
-                            Action updateAction = updateMenuItem.getAction();
-                            updateAction.actionPerformed(null);
-                        }
-                    }, l10n.getString("Update.showDialog"));
+                    announceProgram();
+                    updateGateways();
                     break;
             }
-            //don't respond to further checks
-            updateChecker.removeActionListener(this);
+
+            //schedule next check
+            Timer timer = new Timer(UpdateChecker.AUTO_CHECK_INTERVAL * 1000, new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    updateChecker.checkForUpdates();
+                }
+            });
+            timer.setRepeats(false);
+            timer.start();
+        }
+
+        /** Announce program updates available */
+        private void announceProgram() {
+            String message = MessageFormat.format(l10n.getString("MainFrame.new_program_version"),
+                    updateChecker.getLatestProgramVersion());
+            log.addRecord(new Log.Record(MiscUtils.stripHtml(message), null, Icons.STATUS_UPDATE_IMPORTANT));
+            statusPanel.setStatusMessage(message, null, Icons.STATUS_UPDATE_IMPORTANT, true);
+            //on click open program homepage in browser
+            statusPanel.installClickHandler(new Runnable() {
+                @Override
+                public void run() {
+                    Action browseAction = Actions.getBrowseAction(Links.DOWNLOAD);
+                    browseAction.actionPerformed(null);
+                }
+            }, l10n.getString("Update.browseDownloads"));
+        }
+
+        /** perform gateway update */
+        private void updateGateways() {
+            UpdateInstaller.getInstance().installNewGateways();
         }
     }
 
@@ -985,7 +1063,6 @@ public class MainFrame extends javax.swing.JFrame {
     private JMenuItem translateMenuItem;
     private JButton undoButton;
     private JMenuItem undoMenuItem;
-    private JMenuItem updateMenuItem;
     private JSplitPane verticalSplitPane;
     // End of variables declaration//GEN-END:variables
 }

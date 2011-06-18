@@ -1,19 +1,16 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package esmska.gui;
 
 import esmska.data.CountryPrefix;
 import esmska.data.Gateways;
 import esmska.data.Gateway;
+import esmska.data.Gateway.Feature;
 import esmska.data.Gateways.Events;
 import esmska.data.Tuple;
 import esmska.data.event.ValuedEvent;
 import esmska.data.event.ValuedListener;
 import esmska.utils.L10N;
 import java.awt.Component;
+import java.awt.SystemColor;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.net.URL;
@@ -26,6 +23,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
+import javax.swing.SwingUtilities;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -65,7 +63,12 @@ public class GatewayComboBox extends JComboBox {
                     case REMOVED_GATEWAYS:
                     case FAVORITES_UPDATED:
                     case HIDDEN_UPDATED:
-                        updateGateways();
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateGateways();
+                            }
+                        });
                 }
             }
         });
@@ -212,6 +215,9 @@ public class GatewayComboBox extends JComboBox {
             label.setText(gateway.getName());
             label.setIcon(gateway.getIcon());
             label.setToolTipText(generateTooltip(gateway));
+            if (gateway.isHidden()) {
+                label.setForeground(SystemColor.textInactiveText);
+            }
         }
 
         /** Generate tooltip with gateway info */
@@ -225,7 +231,7 @@ public class GatewayComboBox extends JComboBox {
 
             String tooltip = MessageFormat.format(pattern,
                     gateway.getName(), gateway.getWebsite(), description,
-                    gateway.isLoginRequired() ? registration : noReg,
+                    gateway.hasFeature(Feature.LOGIN_ONLY) ? registration : noReg,
                     Gateways.convertDelayToHumanString(gateway.getDelayBetweenMessages(), false),
                     country.equals(CountryPrefix.INTERNATIONAL_CODE) ? international : local,
                     gateway.getVersion());

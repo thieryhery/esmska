@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: esmska\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-06 14:14+0200\n"
+"POT-Creation-Date: 2011-06-16 20:23+0200\n"
 "PO-Revision-Date: 2010-11-15 00:11+0000\n"
 "Last-Translator: Sergiy Gavrylov <sergiovana@bigmir.net>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
@@ -17,8 +17,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-26 05:02+0000\n"
-"X-Generator: Launchpad (build 12351)\n"
+"X-Launchpad-Export-Date: 2011-06-14 04:43+0000\n"
+"X-Generator: Launchpad (build 13168)\n"
 
 #: AboutFrame.Acknowledge
 msgid "I acknowledge that"
@@ -109,14 +109,6 @@ msgstr "Скасувати"
 #: Cancel_
 msgid "&Cancel"
 msgstr "&Скасувати"
-
-#: CheckUpdatesTooltip
-msgid "Check for program and gateway updates"
-msgstr "Перевірити оновлення програми та шлюзу"
-
-#: CheckUpdates_
-msgid "&Updates checker"
-msgstr "&Перевірка оновлення"
 
 #: ClipboardPopupMenu.Copy
 msgid "Copy"
@@ -243,25 +235,21 @@ msgstr ""
 "елементи керування у головному вікні програми\n"
 "</html>"
 
-#: ConfigFrame.appearancePanel.TabConstraints.tabTitle
-msgid "&Appearance"
-msgstr "&Вигляд"
+#: ConfigFrame.announceProgramUpdatesCheckBox.text
+msgid "Announce new program &updates"
+msgstr ""
 
-#: ConfigFrame.checkUpdatesCheckBox.text
-msgid "Automatically check for &updates of:"
-msgstr "Автоматична перевірка &оновлень:"
-
-#: ConfigFrame.checkUpdatesCheckBox.toolTipText
+#: ConfigFrame.announceProgramUpdatesCheckBox.toolTipText
 msgid ""
 "<html>\n"
 "After program startup perform a check whether a new program version<br>\n"
-"or gateway updates were released and eventually notify the user\n"
+"was released and eventually notify the user\n"
 "</html>"
 msgstr ""
-"<html>\n"
-"Після запуску перевіряти, чи наявна нова версія програми<br>\n"
-"або оновлення шлюзу і в кінці сповіщати користувача\n"
-"</html>"
+
+#: ConfigFrame.appearancePanel.TabConstraints.tabTitle
+msgid "&Appearance"
+msgstr "&Вигляд"
 
 #: ConfigFrame.clearKeyringButton.text
 msgid "&Delete all login credentials"
@@ -294,27 +282,21 @@ msgstr ""
 "</html>"
 
 #: ConfigFrame.demandDeliveryReportCheckBox.text
-msgid "Request the &delivery report"
-msgstr "Запит &звіту про доставку"
+msgid "Request a &delivery report"
+msgstr ""
 
 #: ConfigFrame.demandDeliveryReportCheckBox.toolTipText
 msgid ""
 "<html>\n"
 "Will request sending of a delivery report of the message. The report will "
 "come<br>\n"
-"to the phone number of the sender. This function is supported only by some "
-"gateways.\n"
+"to the phone number of the sender. Not all gateways support this feature.\n"
 "</html>"
 msgstr ""
-"<html>\n"
-"Надсилання запиту звіту про доставку повідомлення. Звіт буде приходити<br>\n"
-"на телефонний номер відправника. Ця функція підтримується лише на деяких "
-"шлюзах.\n"
-"</html>"
 
 #: ConfigFrame.gatewayPanel.TabConstraints.tabTitle
-msgid "&Gateways"
-msgstr "&Шлюзи"
+msgid "Gateway&s"
+msgstr ""
 
 #: ConfigFrame.generalPanel.TabConstraints.tabTitle
 msgid "&General"
@@ -356,17 +338,13 @@ msgstr ""
 "Наприклад: proxy.company.com:443\n"
 "</html>"
 
-#: ConfigFrame.jLabel1.text
-msgid "&Number:"
-msgstr "&Номер:"
-
 #: ConfigFrame.jLabel11.text
 msgid "&Username:"
 msgstr "&Ім’я користувача:"
 
 #: ConfigFrame.jLabel12.text
-msgid "Pa&ssword:"
-msgstr "Па&роль:"
+msgid "&Password:"
+msgstr ""
 
 #: ConfigFrame.jLabel14.text
 msgid "H&TTP proxy:"
@@ -390,10 +368,9 @@ msgstr ""
 "* Автентифікація за іменем та паролем на цей час не підтримується.\n"
 "</i></html>"
 
-#: ConfigFrame.jLabel3.text
-msgctxt "ConfigFrame.jLabel3.text"
-msgid "&Name:"
-msgstr "&Ім’я:"
+#: ConfigFrame.jLabel2.text
+msgid "&Signature:"
+msgstr ""
 
 #: ConfigFrame.lafComboBox.toolTipText
 msgid ""
@@ -430,21 +407,9 @@ msgstr "Показувати значок у &області сповіщенн�
 msgid ""
 "<html>\n"
 "Show icon in the notification area of the window manager (so-called "
-"<i>system tray</i>).<br>\n"
-"<br>\n"
-"Beware, when using modern composite window managers (Compiz, Beryl, ...) "
-"this<br>\n"
-"feature is available only from Java 6 Update 10.\n"
+"<i>system tray</i>).\n"
 "</html>"
 msgstr ""
-"<html>\n"
-"Показує значок в області сповіщення віконного менеджера (так званий "
-"<i>системний лоток</i>).<br>\n"
-"<br>\n"
-"Будьте обережні під час використання новітніх віконних менеджерів (Compiz, "
-"Beryl тощо), ця<br>\n"
-"можливість доступна лише з Java 6 Update 10.\n"
-"</html>"
 
 #: ConfigFrame.passwordField.toolTipText
 msgid "The password belonging to the username"
@@ -510,26 +475,43 @@ msgid ""
 msgstr ""
 "Адреса в полі «HTTP проксі» буде використовуватись також для «HTTPS проксі»"
 
+#: ConfigFrame.senderNameLabel.text
+msgid "N&ame:"
+msgstr ""
+
 #: ConfigFrame.senderNameTextField.toolTipText
 msgid ""
 "<html>\n"
-"Filled in name occupies space in the message but is not visible,<br>\n"
+"Sender name to append to the message.<br>\n"
+"<br>\n"
+"The name occupies space in the message but is not visible,<br>\n"
 "therefore the message text coloring and message counter indicator<br>\n"
-"may seem not to match\n"
+"may seem not to match.\n"
 "</html>"
 msgstr ""
 
+#: ConfigFrame.senderNumberLabel.text
+msgid "&Number:"
+msgstr "&Номер:"
+
 #: ConfigFrame.senderNumberTextField.toolTipText
-msgid "Sender number in international format (starting with '+' sign)"
-msgstr "Номер відправника в міжнародному форматі (починається зі знака '+')"
+msgid ""
+"<html>Sender number in an international format (starting with '+' sign)."
+"<br>\n"
+"Not all gateways support this feature.</html>"
+msgstr ""
 
 #: ConfigFrame.showPasswordCheckBox.text
-msgid "Show &password"
-msgstr "Показувати &пароль"
+msgid "Sho&w password"
+msgstr ""
 
 #: ConfigFrame.showPasswordCheckBox.toolTipText
 msgid "Set the password to be shown or hidden"
 msgstr "Показувати чи приховувати пароль"
+
+#: ConfigFrame.sigDelButton.toolTipText
+msgid "Remove the signature"
+msgstr ""
 
 #: ConfigFrame.socksProxyTextField.toolTipText
 msgid ""
@@ -617,37 +599,18 @@ msgid "Unknown"
 msgstr "Невідомо"
 
 #: ConfigFrame.unstableUpdatesCheckBox.text
-msgid "also u&nstable versions"
-msgstr "також н&естабільні версії"
+msgid "Also u&nstable versions"
+msgstr ""
 
 #: ConfigFrame.unstableUpdatesCheckBox.toolTipText
 msgid ""
 "<html>\n"
-"Notify also also about unstable versions.<br>\n"
+"Notify also also about unstable program versions.<br>\n"
 "<br>\n"
 "<b>Warning: Unstable versions are meant only for experienced users<br>\n"
-"not afraid of potentially losing their program data.</b>\n"
+"who are willing to report encountered problems.</b>\n"
 "</html>"
 msgstr ""
-"<html>\n"
-"Також повідомляє про нестабільні версії.<br>\n"
-"<br>\n"
-"<b>Застереження: Ці версії призначені лише для досвідчених користувачів,"
-"<br>\n"
-"що не бояться можливості втратити дані програми.</b>\n"
-"</html>"
-
-#: ConfigFrame.updateCheckAll
-msgid "program and gateways"
-msgstr "програма та шлюзи"
-
-#: ConfigFrame.updateCheckGateway
-msgid "gateways only"
-msgstr "лише шлюзи"
-
-#: ConfigFrame.updateCheckProgram
-msgid "program only"
-msgstr "лише програма"
 
 #: ConfigFrame.useProxyCheckBox.text
 msgid "Use pro&xy server *"
@@ -656,23 +619,6 @@ msgstr "Використовувати пр&оксі сервер *"
 #: ConfigFrame.useProxyCheckBox.toolTipText
 msgid "Whether a proxy server should be used for connections"
 msgstr "Чи використовувати проксі-сервер для з'єднання"
-
-#: ConfigFrame.useSenderIDCheckBox.text
-msgid "Add a sender &signature to the message"
-msgstr "Додавати п&ідпис відправника до повідомлення"
-
-#: ConfigFrame.useSenderIDCheckBox.toolTipText
-msgid ""
-"<html>\n"
-"With signature added the SMS will come to the recipient from the entered "
-"number<br>\n"
-"and signed with entered name. Only some gateways support this feature.\n"
-"</html>"
-msgstr ""
-"<html>\n"
-"Одержувач з веденим тут номером отримуватиме SMS підписане<br>\n"
-"вказаним іменем. Цю можливість підтримують лише деякі шлюзи.\n"
-"</html>"
 
 #: ConfigFrame.windowCenteredCheckBox.text
 msgid "Start program &centered on the screen"
@@ -799,13 +745,6 @@ msgstr "Автор:"
 msgid "Contributions from:"
 msgstr "У співпраці з:"
 
-#: Credits.emailWarn
-msgid ""
-"Personal authors' emails do not serve the purpose of bug reporting, problem "
-"solving and question asking. You won't get any reply to messages of these "
-"kinds. Use Help menu instead. Thanks."
-msgstr ""
-
 #: Credits.graphics
 msgid "Graphics:"
 msgstr "Графіка:"
@@ -813,6 +752,11 @@ msgstr "Графіка:"
 #: Credits.moreDonators
 msgid "and others..."
 msgstr "та інші..."
+
+#. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
+#: Credits.packagers
+msgid "...and all the packagers linked at <a href=\"{0}\">downloads</a> page"
+msgstr ""
 
 #: Credits.sponsors
 msgid "Sponsors:"
@@ -900,9 +844,8 @@ msgid "Default &gateway:"
 msgstr "Типовий &шлюз:"
 
 #: EditContactPanel.nameLabel.text
-msgctxt "EditContactPanel.nameLabel.text"
 msgid "&Name:"
-msgstr "&Назва:"
+msgstr ""
 
 #: EditContactPanel.nameTextField.toolTipText
 msgid "Contact name"
@@ -1039,9 +982,8 @@ msgid "&Forward"
 msgstr "&Вперед"
 
 #: Gateway.unknown
-msgctxt "Gateway.unknown"
 msgid "Unknown gateway"
-msgstr "Невідомий шлюз"
+msgstr ""
 
 #: GatewayComboBox.Choose_suitable_gateway_for_provided_number
 msgid "Guess a suitable gateway for the provided number"
@@ -1087,6 +1029,20 @@ msgstr "Реєстрація не потрібна."
 msgid "Mainly usable for country: {0}"
 msgstr "Головно прийнятний для країни: {0}"
 
+#: GatewayErrorMessage.helpLabel.text
+msgid "Help:"
+msgstr ""
+
+#: GatewayErrorMessage.retryButton.text
+msgid "&Send again"
+msgstr ""
+
+#: GatewayErrorMessage.retryButton.toolTipText
+msgid ""
+"<html>Please note that this button will unpause your SMS queue.<br>\n"
+"That means that more messages might be re-sent, not just this one.</html>"
+msgstr ""
+
 #. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
 #: GatewayErrorMessage.smsFailed
 msgid "Sending failed: {0}"
@@ -1094,90 +1050,6 @@ msgstr ""
 
 #: GatewayErrorMessage.smsTextLabel.text
 msgid "Original message:"
-msgstr ""
-
-#. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
-#: GatewayExecutor.ERROR_FIX_IN_PROGRESS
-msgid ""
-"The gateway maintainers have modified their webpage and it can''t be used "
-"from Esmska at the moment. The fix is being worked on, you can track <a href="
-"\"{0}\">its status</a>.<br>\n"
-"<br>\n"
-"In the meantime you can send requests to gateway maintainers to create "
-"stable and immutable machine-readable interface for their gateway. That "
-"would eliminate these problems."
-msgstr ""
-
-#: GatewayExecutor.ERROR_GATEWAY_MESSAGE
-msgid "A message from the gateway:<br>"
-msgstr "Повідомлення зі шлюзу:<br>"
-
-#: GatewayExecutor.ERROR_LIMIT_REACHED
-msgid ""
-"You are sending the message too early. The gateway either requires a certain "
-"interval you have to wait before sending another message or it limits the "
-"maximum number of possible messages in some time period. Try it later."
-msgstr ""
-
-#: GatewayExecutor.ERROR_LONG_TEXT
-msgid ""
-"You have entered too long message text.<br>\n"
-"<br>\n"
-"Hint: If it is for your language possible, try to avoid using national "
-"characters (different from standard english character set), otherwise it may "
-"reduce the maximum allowed message length substantially."
-msgstr ""
-
-#: GatewayExecutor.ERROR_NO_CREDIT
-msgid "You don't have sufficient credit to send this message."
-msgstr "Увас недостатньо коштів, щоб надіслати це повідомлення."
-
-#: GatewayExecutor.ERROR_NO_REASON
-msgid "The gateway hasn't specified any reason why the message sending failed."
-msgstr ""
-
-#: GatewayExecutor.ERROR_SIGNATURE_NEEDED
-msgid ""
-"This gateway requires that you supply a sender signature. Correct it in the "
-"program settings and try again."
-msgstr ""
-
-#. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
-#: GatewayExecutor.ERROR_UNKNOWN
-msgid ""
-"An unknown error has occured. The gateway provider has probably changed its "
-"webpages or has a problem with them currently. Try again later.<br>\n"
-"<br>\n"
-"Also make sure that you have working connection to the Internet and that you "
-"are using the <a href=\"{0}\">latest program and gateway version</a>.<br>\n"
-"<br>\n"
-"If the problem persists and the <a href=\"{1}\">web gateway</a> works in a "
-"web browser, report the problem on <a href=\"{2}\">program homepage</a>."
-msgstr ""
-
-#. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
-#: GatewayExecutor.ERROR_WRONG_AUTH
-msgid ""
-"You have entered incorrect login credentials.<br>\n"
-"This gateway requires registration and you can''t send messages throught it "
-"without one. Visit the <a href=\"{0}\">website of this gateway</a> and find "
-"out how to register or log in. Then enter the login credentials in program "
-"preferences.<br>\n"
-"<br>\n"
-"If you have entered your login credentials correctly, visit the website of "
-"the gateway and check that logging in works."
-msgstr ""
-
-#: GatewayExecutor.ERROR_WRONG_CODE
-msgid "You have entered the wrong security code."
-msgstr ""
-
-#: GatewayExecutor.ERROR_WRONG_NUMBER
-msgid "You have entered incorrect recipient number."
-msgstr ""
-
-#: GatewayExecutor.ERROR_WRONG_SIGNATURE
-msgid "You have entered incorrent sender signature (number or name)."
 msgstr ""
 
 #: GatewayExecutor.INFO_CREDIT_REMAINING
@@ -1207,8 +1079,192 @@ msgstr ""
 msgid "Unknown gateway!"
 msgstr ""
 
-#: GatewayMessageDialog.title
+#: GatewayMessageFrame.title
 msgid "Sending process - Esmska"
+msgstr ""
+
+#: GatewayProblem.CUSTOM_MESSAGE
+msgid "The gateway maintainer provided following explanation:"
+msgstr ""
+
+#: GatewayProblem.CUSTOM_MESSAGE.help
+msgid ""
+"Fix the problem described by the gateway maintainer and send the message "
+"again."
+msgstr ""
+
+#. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
+#: GatewayProblem.FIX_IN_PROGRESS
+msgid ""
+"Unfortunately this gateway can''t be used at the moment. The fix is being "
+"worked on. In the meantime please use some other gateway or visit <a href="
+"\"{0}\">{0}</a> and send the message manually."
+msgstr ""
+
+#. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
+#: GatewayProblem.FIX_IN_PROGRESS.help
+msgid ""
+"There is a certain problem that makes it impossible for this program to use "
+"that gateway. You can find more information at <a href=\"{0}\">this page</a>."
+msgstr ""
+
+#: GatewayProblem.GATEWAY_MESSAGE
+msgid "The gateway provided following explanation:"
+msgstr ""
+
+#. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
+#: GatewayProblem.GATEWAY_MESSAGE.help
+msgid ""
+"Fix the problem mentioned in the gateway report and send the message again. "
+"You can also visit <a href=\"{0}\">{0}</a> and send the message manually. "
+"It''s possible that you receive a more detailed problem description this way."
+msgstr ""
+
+#: GatewayProblem.LIMIT_REACHED
+msgid "You're sending the message too early. Try again in a short while."
+msgstr ""
+
+#. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
+#: GatewayProblem.LIMIT_REACHED.help
+msgid ""
+"The gateway either requires a certain interval you need to wait before "
+"sending subsequent message, or it limits the number of messages that can be "
+"sent in a certain timeperiod. The rules are probably described on the "
+"gateway website <a href=\"{0}\">{0}</a>."
+msgstr ""
+
+#: GatewayProblem.LONG_TEXT
+msgid ""
+"You have entered a too long message text. Shorten the message and try to "
+"send it again."
+msgstr ""
+
+#: GatewayProblem.LONG_TEXT.help
+msgid ""
+"For standard-sized SMS (circa 160 characters) you need touse only basic "
+"characters primarily from the English alphabet. Using national characters "
+"(with diacritical marks, etc.) from other languages shortens the maximum SMS "
+"length to about 70 characters. This error message may be related to this "
+"problem.<br>\n"
+"If it is possible in your language try not to use national characters and "
+"use pure English alphabet instead. In the program settings you can also "
+"enable/disable automatic message text conversion into this character set "
+"(works only for some languages)."
+msgstr ""
+
+#: GatewayProblem.NO_CREDIT
+msgid "You don't have enough credit to send this message."
+msgstr ""
+
+#. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
+#: GatewayProblem.NO_CREDIT.help
+msgid ""
+"Visit <a href=\"{0}\">{0}</a> website and charge your credit, then you "
+"should be able to send your messages again."
+msgstr ""
+
+#: GatewayProblem.NO_REASON
+msgid ""
+"The gateway didn't specify any particular reason why this message could not "
+"be sent."
+msgstr ""
+
+#. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
+#: GatewayProblem.NO_REASON.help
+msgid ""
+"This gateway unfortunately hasn''t provided any explanation why your message "
+"was rejected. That means the problem can be caused by anything (unsupported "
+"recipient number, too long message text, etc.). You can visit <a href="
+"\"{0}\">{0}</a> and try to send your message manually, maybe you''ll learn "
+"more information."
+msgstr ""
+
+#. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
+#: GatewayProblem.SIGNATURE_NEEDED
+msgid ""
+"This gateway requires a sender signature filled in (a name, a number or "
+"both). Please enter it in <a href=\"{0}\">the given gateway settings</a> and "
+"try to send the message again."
+msgstr ""
+
+#: GatewayProblem.UNKNOWN
+msgid ""
+"An unknown error has occured. The gateway may be experiencing some problems "
+"at the moment. Please try to send the message again in a short while or use "
+"some other gateway temporarily."
+msgstr ""
+
+#. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
+#: GatewayProblem.UNKNOWN.help
+msgid ""
+"It was not possible to detect the cause of error. The gateway provider may "
+"be experiencing some problems at the moment. Visit <a href=\"{0}\">{0}</a> "
+"and make sure that the gateway works.<br>\n"
+"If this problem persists for a longer time and you can send your messages "
+"through the gateway''s webpage, please <a href=\"{1}\">report it</a>."
+msgstr ""
+
+#. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
+#: GatewayProblem.UNUSABLE
+msgid ""
+"Unfortunately this gateway can''t be used at the moment. That can change in "
+"the future, but currently use some other gateway instead or visit <a href="
+"\"{0}\">{0}</a> and send the message manually."
+msgstr ""
+
+#. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
+#: GatewayProblem.WRONG_AUTH
+msgid ""
+"You have entered a wrong login credentials.<br>\n"
+"Your login: {0}<br>\n"
+"Your password: {1}"
+msgstr ""
+
+#. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
+#: GatewayProblem.WRONG_AUTH.help
+msgid ""
+"This gateway requires registration, otherwise you can''t send messages "
+"through it. Visit <a href=\"{0}\">{0}</a> and find out how to register or "
+"log in. Make sure logging in works. Then fill in the login credentials in <a "
+"href=\"{1}\">the gateway preferences</a>."
+msgstr ""
+
+#: GatewayProblem.WRONG_CODE
+msgid ""
+"You have entered a wrong security code. Please try to send the message again."
+msgstr ""
+
+#. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
+#: GatewayProblem.WRONG_NUMBER
+msgid "You have entered a wrong recipient number: {0}"
+msgstr ""
+
+#. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
+#: GatewayProblem.WRONG_NUMBER.help
+msgid ""
+"The recipient number is either not supported by this gateway or it is "
+"wrongly formatted (maybe it''s not written in an international format?). Fix "
+"the recipient and then try to send the message again. If problems persist, "
+"visit <a href=\"{0}\">{0}</a> and find out why the gateway keeps rejecting "
+"the recipient number."
+msgstr ""
+
+#. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
+#: GatewayProblem.WRONG_SIGNATURE
+msgid ""
+"You have entered a wrong sender signature (a number or a name).<br>\n"
+"Your sender number: {0}<br>\n"
+"Your sender name: {1}"
+msgstr ""
+
+#. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
+#: GatewayProblem.WRONG_SIGNATURE.help
+msgid ""
+"The sender number or the sender name is in wrong format (maybe the number is "
+"not in an international format?). Visit <a href=\"{0}\">the gateway "
+"configuration</a> and fix the problem, then try to send the message again. "
+"If problems persist, visit <a href=\"{1}\">{1}</a> and find out why the "
+"gateway keeps rejecting your signature."
 msgstr ""
 
 #: Hide_program
@@ -1450,9 +1506,19 @@ msgstr ""
 
 #: Main.already_running
 msgid ""
-"<html><h2>Esmska is already running!</h2>Esmska is already once started. We "
-"strongly discourage you from starting another<br>instances of the program "
-"because it may cause a user data loss.</html>"
+"<html><h2>Esmska is already running!</h2>Esmska is already once started. You "
+"can't run multiple program instances.<br>This one will now quit.</html>"
+msgstr ""
+
+#: Main.brokenWebstart
+msgid ""
+"You're currently running Esmska using OpenJDK and Java WebStart.\n"
+"Unfortunatelly this combination is currently broken and doesn't work.\n"
+"Either install Sun Java and use Java WebStart, or download Esmska to your "
+"computer\n"
+"and run it the common way.\n"
+"\n"
+"Esmska will now quit."
 msgstr ""
 
 #. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
@@ -1493,13 +1559,6 @@ msgstr ""
 
 #: Main.run_anyway
 msgid "Run anyway"
-msgstr ""
-
-#: Main.unsupported_java
-msgid ""
-"You are probably running the program on an unsupported Java version! Program "
-"might not work correctly with it! The tested Java versions are: Sun Java 6, "
-"OpenJDK 6, Apple Java 6."
 msgstr ""
 
 #: MainFrame.Quit_program
@@ -1558,10 +1617,6 @@ msgstr ""
 msgid "&Message"
 msgstr ""
 
-#: MainFrame.newGatewayUpdate
-msgid "<a href=\"\">Gateway updates</a> are available!"
-msgstr ""
-
 #. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
 #: MainFrame.new_program_version
 msgid "A <a href=\"\">new program version</a> ({0}) has been released!"
@@ -1581,7 +1636,9 @@ msgid ""
 "using<br>\n"
 "the <i>esmska.sh</i> file (in Linux, etc) or the <i>esmska.exe</i> (in "
 "Windows).</li>\n"
-"</ul></html>"
+"</ul>\n"
+"The program will now attempt to download the gateways from the Internet.\n"
+"</html>"
 msgstr ""
 
 #: MainFrame.problemMenuItem.text
@@ -1708,6 +1765,10 @@ msgstr ""
 
 #: QueuePanel.border.title
 msgid "Queue"
+msgstr ""
+
+#: QueuePanel.confirmDelete
+msgid "Really remove all selected messages from the queue?"
 msgstr ""
 
 #. #Shortcut for "hour"
@@ -1869,12 +1930,6 @@ msgid ""
 "</html>"
 msgstr ""
 
-#: SMSSender.NO_REASON_ERROR
-msgid ""
-"Author of the script has not provided any additional information<br>about "
-"cause of the failure for the web gateway used."
-msgstr ""
-
 #. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
 #: SMSSender.SENDING_CRASHED_ERROR
 msgid ""
@@ -1921,6 +1976,30 @@ msgstr ""
 msgid "Show program"
 msgstr ""
 
+#: Signature.confirmRemove
+msgid "Do you want to remove selected signature?"
+msgstr ""
+
+#: Signature.default
+msgid "Default"
+msgstr ""
+
+#: Signature.new
+msgid "<html><i>New signature...</i></html>"
+msgstr ""
+
+#: Signature.new.desc
+msgid "Name of the new signature:"
+msgstr ""
+
+#: Signature.none
+msgid "None"
+msgstr ""
+
+#: SignatureComboBox.tooltip
+msgid "The signature to append to the message (sender number and name)."
+msgstr ""
+
 #: StatusPanel.progressBar.string
 msgctxt "StatusPanel.progressBar.string"
 msgid "Please wait..."
@@ -1955,7 +2034,7 @@ msgstr ""
 
 #. #Write the tip as short as possible
 #: Tip.11
-msgid "In preferences you can restrict the list of available web gateways."
+msgid "In preferences you can restrict the list of displayed web gateways."
 msgstr ""
 
 #. #Write the tip as short as possible
@@ -1977,7 +2056,8 @@ msgstr ""
 #. #Write the tip as short as possible
 #: Tip.15
 msgid ""
-"We recommend you to use Linux packages, you'll obtain an auto-update feature."
+"We recommend you to use Linux packages, you'll obtain a program auto-update "
+"feature."
 msgstr ""
 
 #. #Write the tip as short as possible
@@ -2000,7 +2080,7 @@ msgstr ""
 #. #Write the tip as short as possible
 #: Tip.19
 msgid ""
-"Integrated gateway updater will help you solve problems with message sending."
+"Gateways are automatically updated to their latest version on program start."
 msgstr ""
 
 #. #Write the tip as short as possible
@@ -2013,7 +2093,8 @@ msgstr ""
 #. #Write the tip as short as possible
 #: Tip.20
 msgid ""
-"By using commandline options you can use program even in café or school."
+"By using commandline options or the special portable version you can use "
+"program even in café or school."
 msgstr ""
 
 #. #Write the tip as short as possible
@@ -2121,11 +2202,6 @@ msgstr ""
 msgid "&Undo"
 msgstr ""
 
-#: UnknownGateway
-msgctxt "UnknownGateway"
-msgid "Unknown gateway"
-msgstr ""
-
 #: Unpause
 msgid "Unpause"
 msgstr ""
@@ -2138,33 +2214,12 @@ msgstr ""
 msgid "Unpause sms queue"
 msgstr ""
 
-#: Update.allUpdated
-msgid "All gateways have been successfully updated."
-msgstr ""
-
 #: Update.browseDownloads
 msgid "Click to open program downloads page"
 msgstr ""
 
-#: Update.checkFailed
-msgid "Retrieving update information failed!"
-msgstr ""
-
-#: Update.checking
-msgid "Checking..."
-msgstr ""
-
 #: Update.downloadFailed
-msgid "Downloading of some gateways failed!"
-msgstr ""
-
-#: Update.downloading
-msgid "Downloading..."
-msgstr ""
-
-#. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
-#: Update.gwTooltip
-msgid "gateway version: {0}"
+msgid "It wasn't possible to download all gateway updates."
 msgstr ""
 
 #. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
@@ -2173,66 +2228,7 @@ msgid "Gateway updated: {0}"
 msgstr ""
 
 #: Update.installFailed
-msgid "Installation of some gateways failed!"
-msgstr ""
-
-#. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
-#: Update.invalidGw
-msgid "{0} (needs program version: {1})"
-msgstr ""
-
-#: Update.noUpdates
-msgid ""
-"<html><h2>All gateways are up-to-date</h2>At the moment you are using the "
-"latest versions of all the available gateways.</html>"
-msgstr ""
-
-#. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
-#: Update.notLatest
-msgid ""
-"<html>Some gateways require <a href=\"{0}\">more recent program version</a> "
-"than you currently use.</html>"
-msgstr ""
-
-#. #If you want to use single quotes (') in this translation, you must write them doubled ('')!
-#: Update.programUpdateAvailable
-msgid ""
-"<html>There is a new program version ({0}) available on the <a href="
-"\"{1}\">program homepage</a>.</html>"
-msgstr ""
-
-#: Update.queueRunning
-msgid ""
-"<html><h2>You are currently sending messages</h2>\n"
-"No messages may be sent during program update. Please wait until<br>\n"
-"messages currently being sent are finished and then open this dialog again.</"
-"html>"
-msgstr ""
-
-#: Update.showDialog
-msgid "Click to open an update manager"
-msgstr ""
-
-#: Update.update_
-msgid "&Update"
-msgstr ""
-
-#: Update.updatesFound
-msgid ""
-"<html><h2>Updated gateways found</h2>Some new or updated gateways have been "
-"found. It is recommended to update them now.</html>"
-msgstr ""
-
-#: UpdateDialog.checkButton.text
-msgid "Check for &updates"
-msgstr ""
-
-#: UpdateDialog.topLabel.text
-msgid ""
-"<html>\n"
-"<h2>Check for updated gateways</h2>\n"
-"Updated gateways may help you fix problems with sending messages.\n"
-"</html>"
+msgid "Some of gateway updates couldn't be installed."
 msgstr ""
 
 #~ msgid "2007-2010 Kamil Páral"
@@ -2243,6 +2239,44 @@ msgstr ""
 
 #~ msgid "<html><a href=\"\">Support project</a></html>"
 #~ msgstr "<html><a href=\"\">Підтримка проекту</a></html>"
+
+#~ msgid "Check for program and gateway updates"
+#~ msgstr "Перевірити оновлення програми та шлюзу"
+
+#~ msgid "&Updates checker"
+#~ msgstr "&Перевірка оновлення"
+
+#~ msgid "Automatically check for &updates of:"
+#~ msgstr "Автоматична перевірка &оновлень:"
+
+#~ msgid ""
+#~ "<html>\n"
+#~ "After program startup perform a check whether a new program version<br>\n"
+#~ "or gateway updates were released and eventually notify the user\n"
+#~ "</html>"
+#~ msgstr ""
+#~ "<html>\n"
+#~ "Після запуску перевіряти, чи наявна нова версія програми<br>\n"
+#~ "або оновлення шлюзу і в кінці сповіщати користувача\n"
+#~ "</html>"
+
+#~ msgid "Request the &delivery report"
+#~ msgstr "Запит &звіту про доставку"
+
+#~ msgid ""
+#~ "<html>\n"
+#~ "Will request sending of a delivery report of the message. The report will "
+#~ "come<br>\n"
+#~ "to the phone number of the sender. This function is supported only by "
+#~ "some gateways.\n"
+#~ "</html>"
+#~ msgstr ""
+#~ "<html>\n"
+#~ "Надсилання запиту звіту про доставку повідомлення. Звіт буде "
+#~ "приходити<br>\n"
+#~ "на телефонний номер відправника. Ця функція підтримується лише на деяких "
+#~ "шлюзах.\n"
+#~ "</html>"
 
 #~ msgid ""
 #~ "This tab is for developing purposes only. It will not be visible in the "
@@ -2269,6 +2303,9 @@ msgstr ""
 #~ msgid "&Gateway:"
 #~ msgstr "&Шлюз:"
 
+#~ msgid "Pa&ssword:"
+#~ msgstr "Па&роль:"
+
 #~ msgid ""
 #~ "<html><i>\n"
 #~ "Although the passwords are stored encrypted the original content may be "
@@ -2284,6 +2321,10 @@ msgstr ""
 #~ "програми</u>.\n"
 #~ "</i></html>"
 
+#~ msgctxt "ConfigFrame.jLabel3.text"
+#~ msgid "&Name:"
+#~ msgstr "&Ім’я:"
+
 #~ msgid ""
 #~ "<html>\n"
 #~ "Here you can set your login credentials for gateways which require it.\n"
@@ -2295,6 +2336,25 @@ msgstr ""
 
 #~ msgid "&Login credentials"
 #~ msgstr "&Дані реєстрації"
+
+#~ msgid ""
+#~ "<html>\n"
+#~ "Show icon in the notification area of the window manager (so-called "
+#~ "<i>system tray</i>).<br>\n"
+#~ "<br>\n"
+#~ "Beware, when using modern composite window managers (Compiz, Beryl, ...) "
+#~ "this<br>\n"
+#~ "feature is available only from Java 6 Update 10.\n"
+#~ "</html>"
+#~ msgstr ""
+#~ "<html>\n"
+#~ "Показує значок в області сповіщення віконного менеджера (так званий "
+#~ "<i>системний лоток</i>).<br>\n"
+#~ "<br>\n"
+#~ "Будьте обережні під час використання новітніх віконних менеджерів "
+#~ "(Compiz, Beryl тощо), ця<br>\n"
+#~ "можливість доступна лише з Java 6 Update 10.\n"
+#~ "</html>"
 
 #~ msgid ""
 #~ "<html>\n"
@@ -2314,11 +2374,77 @@ msgstr ""
 #~ "регістру.\n"
 #~ "</html>"
 
+#~ msgid "&Gateways"
+#~ msgstr "&Шлюзи"
+
 #~ msgid "Do you really like to remove all entered login credentials?"
 #~ msgstr "Ви дійсно хочете вилучити всі введені дані реєстрації?"
+
+#~ msgid "Sender number in international format (starting with '+' sign)"
+#~ msgstr "Номер відправника в міжнародному форматі (починається зі знака '+')"
+
+#~ msgid "Show &password"
+#~ msgstr "Показувати &пароль"
+
+#~ msgid "also u&nstable versions"
+#~ msgstr "також н&естабільні версії"
+
+#~ msgid ""
+#~ "<html>\n"
+#~ "Notify also also about unstable versions.<br>\n"
+#~ "<br>\n"
+#~ "<b>Warning: Unstable versions are meant only for experienced users<br>\n"
+#~ "not afraid of potentially losing their program data.</b>\n"
+#~ "</html>"
+#~ msgstr ""
+#~ "<html>\n"
+#~ "Також повідомляє про нестабільні версії.<br>\n"
+#~ "<br>\n"
+#~ "<b>Застереження: Ці версії призначені лише для досвідчених користувачів,"
+#~ "<br>\n"
+#~ "що не бояться можливості втратити дані програми.</b>\n"
+#~ "</html>"
+
+#~ msgid "program and gateways"
+#~ msgstr "програма та шлюзи"
+
+#~ msgid "gateways only"
+#~ msgstr "лише шлюзи"
+
+#~ msgid "program only"
+#~ msgstr "лише програма"
+
+#~ msgid "Add a sender &signature to the message"
+#~ msgstr "Додавати п&ідпис відправника до повідомлення"
+
+#~ msgid ""
+#~ "<html>\n"
+#~ "With signature added the SMS will come to the recipient from the entered "
+#~ "number<br>\n"
+#~ "and signed with entered name. Only some gateways support this feature.\n"
+#~ "</html>"
+#~ msgstr ""
+#~ "<html>\n"
+#~ "Одержувач з веденим тут номером отримуватиме SMS підписане<br>\n"
+#~ "вказаним іменем. Цю можливість підтримують лише деякі шлюзи.\n"
+#~ "</html>"
 
 #~ msgid "<html>User configuration directory:<br>{0}</html>"
 #~ msgstr "<html>Каталог конфігурації користувача:<br>{0}</html>"
 
+#~ msgctxt "EditContactPanel.nameLabel.text"
+#~ msgid "&Name:"
+#~ msgstr "&Назва:"
+
 #~ msgid "Show &only gateways with names containing:"
 #~ msgstr "Показувати &лише шлюзи, що містять назви:"
+
+#~ msgctxt "Gateway.unknown"
+#~ msgid "Unknown gateway"
+#~ msgstr "Невідомий шлюз"
+
+#~ msgid "A message from the gateway:<br>"
+#~ msgstr "Повідомлення зі шлюзу:<br>"
+
+#~ msgid "You don't have sufficient credit to send this message."
+#~ msgstr "Увас недостатньо коштів, щоб надіслати це повідомлення."
