@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.beans.*;
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang.ObjectUtils;
@@ -23,7 +24,7 @@ public class Config extends Object implements Serializable {
     /** mutex whether config already loaded from disk */
     private static boolean loaded = false;
     
-    private static final String LATEST_VERSION = "1.1";
+    private static final String LATEST_VERSION = "1.2";
     private static final Logger logger = Logger.getLogger(Config.class.getName());
 
     private String version = "";
@@ -56,6 +57,7 @@ public class Config extends Object implements Serializable {
     private String[] hiddenGateways = new String[]{};
     private String uuid = null;
     private int uuidMonth = -1;
+    private Date lastStatsSent = null;
 
     /** Get shared instance 
      * @throws IllegalStateException until config is loaded from disk
@@ -281,6 +283,10 @@ public class Config extends Object implements Serializable {
     public int getUUIDMonth() {
         return uuidMonth;
     }
+
+    public Date getLastStatsSent() {
+        return lastStatsSent;
+    }
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="Set Methods">
@@ -474,6 +480,12 @@ public class Config extends Object implements Serializable {
         int old = this.uuidMonth;
         this.uuidMonth = uuidMonth;
         changeSupport.firePropertyChange("uuidMonth", old, uuidMonth);
+    }
+
+    public void setLastStatsSent(Date lastStatsSent) {
+        Date old = this.lastStatsSent;
+        this.lastStatsSent = lastStatsSent;
+        changeSupport.firePropertyChange("lastStatsSent", old, lastStatsSent);
     }
     // </editor-fold>
 
